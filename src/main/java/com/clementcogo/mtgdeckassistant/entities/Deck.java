@@ -31,6 +31,10 @@ public class Deck {
     )
     private List<DeckSlot> slots = new ArrayList<>();
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "commander_slot_id")
+    private DeckSlot commander;
+
     protected Deck() {
         // JPA
     }
@@ -56,6 +60,10 @@ public class Deck {
         slot.setDeck(null);
     }
 
+    public void setCommander(DeckSlot commander) {
+        this.commander = commander;
+    }
+
     // Getters (et setters si tu veux, mais limite-les)
     public Long getId() { return id; }
     public String getName() { return name; }
@@ -66,4 +74,7 @@ public class Deck {
     public void setName(String name) { this.name = name; }
     public void setFormat(Format format) { this.format = format; }
 
+    public DeckSlot getCommander() {
+        return commander;
+    }
 }

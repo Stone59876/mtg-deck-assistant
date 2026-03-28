@@ -1,5 +1,6 @@
 package com.clementcogo.mtgdeckassistant.dto.response;
 
+import com.clementcogo.mtgdeckassistant.entities.Deck;
 import com.clementcogo.mtgdeckassistant.entities.DeckSlot;
 import com.clementcogo.mtgdeckassistant.entities.Format;
 
@@ -11,6 +12,7 @@ public class DeckResponse {
     String name;
     Format format;
     Instant createdAt;
+    DeckSlot commander;
 
     public DeckResponse(Long id, String name, Format format, Instant createdAt) {
         this.id = id;
@@ -49,6 +51,10 @@ public class DeckResponse {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public void setCommander(DeckSlot commander) {
+        this.commander = commander;
     }
 
 }

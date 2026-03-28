@@ -1,5 +1,6 @@
 package com.clementcogo.mtgdeckassistant.advice;
 
+import com.clementcogo.mtgdeckassistant.exception.ConflictException;
 import com.clementcogo.mtgdeckassistant.exception.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -43,6 +44,13 @@ public class GlobalExceptionHandler {
         return Map.of("error", "Bad Request",
                 "message", ex.getMessage()
         );
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(ConflictException.class)
+    public Map<String, String> handleConflictException(ConflictException ex) {
+        return Map.of("error","Conflict",
+                "message", ex.getMessage());
     }
 
 }

@@ -3,9 +3,8 @@
     import com.clementcogo.mtgdeckassistant.dto.request.AddCardRequest;
     import com.clementcogo.mtgdeckassistant.dto.request.CreateDeckRequest;
     import com.clementcogo.mtgdeckassistant.dto.request.ImportDeckListRequest;
-    import com.clementcogo.mtgdeckassistant.dto.response.DeckResponse;
-    import com.clementcogo.mtgdeckassistant.dto.response.ImportResultResponse;
-    import com.clementcogo.mtgdeckassistant.dto.response.SlotResponse;
+    import com.clementcogo.mtgdeckassistant.dto.request.SetCommanderRequest;
+    import com.clementcogo.mtgdeckassistant.dto.response.*;
     import com.clementcogo.mtgdeckassistant.service.DeckService;
     import jakarta.validation.Valid;
     import org.springframework.http.HttpStatus;
@@ -58,6 +57,17 @@
         @ResponseStatus(HttpStatus.CREATED)
         public ImportResultResponse importDeckPlainText(@PathVariable Long id, @RequestBody String decklist){
             return deckService.importDeckList(id,decklist,true);
+        }
+
+        @GetMapping("/{id}/validate")
+        public DeckValidationResponse getDeckValidation(@PathVariable Long id){
+            return deckService.validateDeck(id);
+        }
+
+        @PutMapping("/{id}/commander")
+        @ResponseStatus(HttpStatus.ACCEPTED)
+        public SetCommanderResponse setCommander(@PathVariable Long id, @RequestBody SetCommanderRequest request){
+            return deckService.setCommander(id, request.getCardName());
         }
 
 

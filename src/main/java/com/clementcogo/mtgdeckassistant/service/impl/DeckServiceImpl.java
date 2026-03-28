@@ -2,11 +2,11 @@ package com.clementcogo.mtgdeckassistant.service.impl;
 
 import com.clementcogo.mtgdeckassistant.dto.request.AddCardRequest;
 import com.clementcogo.mtgdeckassistant.dto.request.CreateDeckRequest;
-import com.clementcogo.mtgdeckassistant.dto.response.DeckResponse;
-import com.clementcogo.mtgdeckassistant.dto.response.ImportResultResponse;
-import com.clementcogo.mtgdeckassistant.dto.response.SlotResponse;
+import com.clementcogo.mtgdeckassistant.dto.response.*;
 import com.clementcogo.mtgdeckassistant.entities.Deck;
 import com.clementcogo.mtgdeckassistant.entities.DeckSlot;
+import com.clementcogo.mtgdeckassistant.entities.Format;
+import com.clementcogo.mtgdeckassistant.exception.ConflictException;
 import com.clementcogo.mtgdeckassistant.exception.NotFoundException;
 import com.clementcogo.mtgdeckassistant.repository.DeckRepository;
 import com.clementcogo.mtgdeckassistant.repository.DeckSlotRepository;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -29,6 +30,8 @@ public class DeckServiceImpl implements DeckService {
 
     @Autowired
     private DeckSlotRepository deckSlotRepository;
+
+    private static final Set<String> BASIC_LANDS = Set.of("plains","island","swamp","mountain","forest","wastes");
 
     @Override
     public DeckResponse create(CreateDeckRequest request) {
@@ -49,7 +52,11 @@ public class DeckServiceImpl implements DeckService {
         Deck deck = deckRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Deck not found with id " + id));
         String cardName = request.getCardName().trim();
-        upsertCard(deck, cardName, request.getQty(),true);
+        boolean mergeDuplicates = !deck.getFormat().equals(Format.COMMANDER);
+        boolean alreadyExist = upsertCard(deck, cardName, request.getQty(),mergeDuplicates);
+        if(!mergeDuplicates && alreadyExist){
+            throw new ConflictException("Impossible d'ajouter cette carte car elle existe déjà dans le deck Commander, la carte est : " + cardName);
+        }
         Deck saved = deckRepository.save(deck);
         return new DeckResponse(saved.getId(), saved.getName(), saved.getFormat(), saved.getCreatedAt());
     }
@@ -149,6 +156,75 @@ public class DeckServiceImpl implements DeckService {
             slotResponses.add(s);
         }
         return slotResponses;
+    }
+
+    @Override
+    public DeckValidationResponse validateDeck(Long deckId) {
+        DeckValidationResponse response = new DeckValidationResponse(deckId);
+        Deck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new NotFoundException("Deck not found with id " + deckId));
+        response.setValid(true);
+        List<DeckSlot> slots = deck.getSlots();
+        response.setFormat(deck.getFormat());
+        int maxSizeLimit = 75;
+        int minSizeLimit = 60;
+        int totalQty = 0;
+        for(DeckSlot deckSlot: slots) {
+            totalQty = totalQty + deckSlot.getQty();
+            if(deckSlot.getQty() > 1 && !BASIC_LANDS.contains(deckSlot.getCardName().trim().toLowerCase()) ){
+              response.addDuplicateCard(deckSlot);
+            }
+        }
+        response.setTotalCards(totalQty);
+        boolean uniqueCards = false;
+        if(deck.getFormat().equals(Format.COMMANDER)) {
+                minSizeLimit = 100;
+                maxSizeLimit = 100;
+                uniqueCards = true;
+                if(deck.getCommander() == null){
+                    response.setValid(false);
+                    response.addIssue("Commander deck with no commander");
+                }else if(!deck.getCommander().getDeck().equals(deck)) {
+                    response.setValid(false);
+                    response.addIssue("Commander is in the wrong deck , should be " + deck.getId() + " but it is in " + deck.getCommander().getDeck().getId());
+                }
+        }
+        if(totalQty > maxSizeLimit || totalQty < minSizeLimit)
+        {
+            response.addIssue("deck size is too large or too small , its " + totalQty + " but i should be between " + minSizeLimit + " and " + maxSizeLimit);
+            response.setValid(false);
+        }
+        if(!response.getDuplicateCards().isEmpty() && uniqueCards) {
+            response.addIssue("there are duplicates of cards in the deck that are not basic lands and it is not allowed in this format");
+            response.setValid(false);
+        }
+        return response;
+
+    }
+
+    @Override
+    public SetCommanderResponse setCommander(Long deckId,String commander) {
+        SetCommanderResponse response = new SetCommanderResponse(deckId,commander);
+        Deck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new NotFoundException("Deck not found with id " + deckId));
+        if(!deck.getFormat().equals(Format.COMMANDER)) {
+            response.setValid(false);
+            throw new IllegalArgumentException("This is not a commander deck");
+        }
+        else
+        {
+            for (DeckSlot deckSlot : deck.getSlots()) {
+                if(deckSlot.getCardName().equalsIgnoreCase(commander) && deckSlot.getQty() == 1) {
+                    deck.setCommander(deckSlot);
+                    response.setValid(true);
+                }
+            }
+        }
+        if(!response.isValid()) {
+            throw new IllegalArgumentException("Commander must be a single card present in the deck");
+        }
+        deckRepository.save(deck);
+        return response;
     }
 
 }
