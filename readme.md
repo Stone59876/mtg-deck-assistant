@@ -9,6 +9,7 @@ API backend en **Java / Spring Boot** pour gérer des decks **Magic: The Gatheri
 - **Spring Boot 3.5.10** (Spring Web, Validation)
 - **Spring Data JPA**
 - **H2** (base de données de dev)
+- **Caffeine Cache**
 
 ---
 
@@ -20,6 +21,8 @@ API backend en **Java / Spring Boot** pour gérer des decks **Magic: The Gatheri
     - **JSON** (`/decks/{id}/import`)
     - **Plain text** (`/decks/{id}/import-text`)
 - Résumé d’import : `addedSlots`, `updatedSlots`, `duplicateLines`, `ignoredLines`, `invalidLines`
+- Définir un commandant par deck
+- Endpoint de validation Commander (100 cartes, singleton, etc.)
 
 ---
 
@@ -115,10 +118,6 @@ Body (raw text) :
 #### 500 : erreur serveur inattendue
 
 ## Roadmap
-
-### Définir un commandant par deck
-
-### Endpoint de validation Commander (100 cartes, singleton, etc.)
 
 ### Intégration Scryfall (lookup/search) + cache
 
