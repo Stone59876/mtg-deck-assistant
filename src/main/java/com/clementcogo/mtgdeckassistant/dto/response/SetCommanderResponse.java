@@ -11,6 +11,11 @@ public class SetCommanderResponse {
         this.valid = false;
     }
 
+    public SetCommanderResponse(Long deckId) {
+        this.deckId = deckId;
+        this.valid = false;
+    }
+
     public void setValid(boolean valid) {
         this.valid = valid;
     }

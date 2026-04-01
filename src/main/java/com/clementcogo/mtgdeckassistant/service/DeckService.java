@@ -3,6 +3,7 @@ package com.clementcogo.mtgdeckassistant.service;
 import com.clementcogo.mtgdeckassistant.dto.request.AddCardRequest;
 import com.clementcogo.mtgdeckassistant.dto.request.CreateDeckRequest;
 import com.clementcogo.mtgdeckassistant.dto.response.*;
+import com.clementcogo.mtgdeckassistant.entities.Deck;
 import com.clementcogo.mtgdeckassistant.entities.DeckSlot;
 
 
@@ -17,4 +18,5 @@ public interface DeckService {
     List<SlotResponse> getCards(Long deckId);
     DeckValidationResponse validateDeck(Long deckId);
     SetCommanderResponse setCommander(Long deckId, String commander);
+    CommanderResponse getCommander(Long deckId);
 }

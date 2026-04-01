@@ -70,5 +70,9 @@
             return deckService.setCommander(id, request.getCardName());
         }
 
+        @GetMapping("/{id}/commander")
+        public CommanderResponse getCommander(@PathVariable Long id) { return deckService.getCommander(id);}
+
+
 
     }

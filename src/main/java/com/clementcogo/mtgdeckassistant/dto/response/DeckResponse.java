@@ -12,13 +12,21 @@ public class DeckResponse {
     String name;
     Format format;
     Instant createdAt;
-    DeckSlot commander;
+    String commander;
 
     public DeckResponse(Long id, String name, Format format, Instant createdAt) {
         this.id = id;
         this.name = name;
         this.format = format;
         this.createdAt = createdAt;
+    }
+
+    public DeckResponse(Long id, String name, Format format, Instant createdAt,String commander) {
+        this.id = id;
+        this.name = name;
+        this.format = format;
+        this.createdAt = createdAt;
+        this.commander = commander;
     }
 
     public Long getId() {
@@ -41,6 +49,10 @@ public class DeckResponse {
         return format;
     }
 
+    public String getCommander() {
+        return commander;
+    }
+
     public void setFormat(Format format) {
         this.format = format;
     }
@@ -53,7 +65,7 @@ public class DeckResponse {
         this.createdAt = createdAt;
     }
 
-    public void setCommander(DeckSlot commander) {
+    public void setCommander(String commander) {
         this.commander = commander;
     }
 

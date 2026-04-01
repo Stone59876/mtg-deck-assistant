@@ -44,7 +44,7 @@ public class DeckServiceImpl implements DeckService {
     public DeckResponse getById(Long id) {
         Deck deck = deckRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Deck not found with id " + id));
-        return new DeckResponse(deck.getId(), deck.getName(), deck.getFormat(), deck.getCreatedAt());
+        return toDeckResponse(deck);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class DeckServiceImpl implements DeckService {
             throw new ConflictException("Impossible d'ajouter cette carte car elle existe déjà dans le deck Commander, la carte est : " + cardName);
         }
         Deck saved = deckRepository.save(deck);
-        return new DeckResponse(saved.getId(), saved.getName(), saved.getFormat(), saved.getCreatedAt());
+        return toDeckResponse(saved);
     }
 
     @Override
@@ -225,6 +225,30 @@ public class DeckServiceImpl implements DeckService {
         }
         deckRepository.save(deck);
         return response;
+    }
+
+    @Override
+    public CommanderResponse getCommander(Long deckId) {
+        CommanderResponse response = new CommanderResponse(deckId);
+        Deck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new NotFoundException("Deck not found with id " + deckId));
+        if(!deck.getFormat().equals(Format.COMMANDER)) {
+            throw new IllegalArgumentException("This is not a commander deck");
+        }
+        else
+        {
+           if(deck.getCommander() != null){
+                response = new CommanderResponse(deckId,deck.getCommander().getCardName(),true);
+           }
+        }
+        return response;
+    }
+
+    private DeckResponse toDeckResponse(Deck deck) {
+        if(deck.getCommander() != null) {
+            return new DeckResponse(deck.getId(), deck.getName(), deck.getFormat(), deck.getCreatedAt(),deck.getCommander().getCardName());
+        }
+        return new DeckResponse(deck.getId(), deck.getName(), deck.getFormat(), deck.getCreatedAt());
     }
 
 }
