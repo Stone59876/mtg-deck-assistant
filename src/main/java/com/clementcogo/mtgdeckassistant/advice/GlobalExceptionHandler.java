@@ -2,6 +2,7 @@ package com.clementcogo.mtgdeckassistant.advice;
 
 import com.clementcogo.mtgdeckassistant.exception.ConflictException;
 import com.clementcogo.mtgdeckassistant.exception.NotFoundException;
+import com.clementcogo.mtgdeckassistant.exception.RateLimitException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -50,6 +51,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConflictException.class)
     public Map<String, String> handleConflictException(ConflictException ex) {
         return Map.of("error","Conflict",
+                "message", ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    @ExceptionHandler(RateLimitException.class)
+    public Map<String, String> handleRateLimitException(RateLimitException ex) {
+        return Map.of("error","Too Many Requests",
                 "message", ex.getMessage());
     }
 
