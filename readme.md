@@ -5,8 +5,8 @@ API backend en **Java / Spring Boot** pour gérer des decks **Magic: The Gatheri
 ---
 
 ## Stack
-- **Java 17**
-- **Spring Boot** (Spring Web, Validation)
+- **Java 21**
+- **Spring Boot 3.5.10** (Spring Web, Validation)
 - **Spring Data JPA**
 - **H2** (base de données de dev)
 
@@ -26,7 +26,7 @@ API backend en **Java / Spring Boot** pour gérer des decks **Magic: The Gatheri
 ## Lancer le projet
 
 ### Prérequis
-- Java 17
+- Java 21
 
 ### Démarrage (Maven)
 ```bash
