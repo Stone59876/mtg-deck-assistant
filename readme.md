@@ -23,7 +23,7 @@ API backend en **Java / Spring Boot** pour gérer des decks **Magic: The Gatheri
 - Résumé d’import : `addedSlots`, `updatedSlots`, `duplicateLines`, `ignoredLines`, `invalidLines`
 - Définir un commandant par deck
 - Endpoint de validation Commander (100 cartes, singleton, etc.)
-
+- Intégration Scryfall (lookup/search) + cache
 ---
 
 ## Lancer le projet
@@ -118,8 +118,6 @@ Body (raw text) :
 #### 500 : erreur serveur inattendue
 
 ## Roadmap
-
-### Intégration Scryfall (lookup/search) + cache
 
 ### Suggestions via Gemini : génération de requêtes Scryfall + preview de cartes
 
