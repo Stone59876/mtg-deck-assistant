@@ -1,9 +1,7 @@
 package com.clementcogo.mtgdeckassistant.controller;
 
 import com.clementcogo.mtgdeckassistant.dto.response.CardPreviewResponse;
-import com.clementcogo.mtgdeckassistant.dto.response.DeckResponse;
-import com.clementcogo.mtgdeckassistant.integration.scryfall.ScryfallClient;
-import com.clementcogo.mtgdeckassistant.integration.scryfall.model.ScryfallCardRaw;
+import com.clementcogo.mtgdeckassistant.dto.response.SearchPageResponse;
 import com.clementcogo.mtgdeckassistant.service.ScryfallService;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +18,11 @@ public class ScryfallController {
     @GetMapping("/named")
     public CardPreviewResponse getByExactCardName(@RequestParam String name){
         return scryfallService.getCardPreviewByExactName(name);
+    }
+
+    @GetMapping("/search")
+    public SearchPageResponse searchScryfall(@RequestParam String query, @RequestParam String order,@RequestParam int limit,@RequestParam int page){
+        return scryfallService.searchScryfall(query,order,limit,page);
     }
 
 }
