@@ -47,8 +47,8 @@ public GeminiServiceImpl(GeminiClient geminiClient){
         }
         if (q.startsWith("http") || q.contains("http") || q.contains("scryfall") || q.contains("www")) {
             throw new GeminiException("rawQuery must be Scryfall DSL, not a URL, was :" + q);
-        } else if (!q.contains("o:") && !q.contains("t:") && !q.contains("ci:")) {
-            throw new GeminiException("Suggestion returned query with too little filter (no oracle or type or color identity , got :" + q);
+        } else if (!q.contains("o:") && !q.contains("t:") && !q.contains("ci:") && !q.contains("is:") && !q.contains("mv") && !q.contains("cmc") && !q.contains("pow") && !q.contains("id")) {
+            throw new GeminiException("Suggestion returned query with too little filter (no oracle or type or color identity or mana value or cumulative mana cost or power  , got :" + q);
         } else if (query.getReason() == null || query.getReason().isBlank()) {
             throw new GeminiException("Suggestion returned query with empty reason");
         }else if (query.getTitle() == null || query.getTitle().isBlank()) {
@@ -63,6 +63,7 @@ public GeminiServiceImpl(GeminiClient geminiClient){
             query.setOrder(query.getOrder().trim().toLowerCase());
         }
         if(query.getRawQuery() != null) {
+            // On vérifie que c'est des cartes légales en commander soit avec f:edh soit avec legal:commander (les deux marche)
             if(!query.getRawQuery().trim().toLowerCase().contains("f:edh") && !query.getRawQuery().trim().toLowerCase().contains("legal:commander")) {
                 query.setRawQuery(query.getRawQuery() + " f:edh");
             }
@@ -76,9 +77,6 @@ public GeminiServiceImpl(GeminiClient geminiClient){
         if (query.getTitle() != null) {
             query.setTitle(query.getTitle().trim());
         }
-
-        // TEST push git
-
     }
 
 }
