@@ -1,6 +1,7 @@
 package com.clementcogo.mtgdeckassistant.advice;
 
 import com.clementcogo.mtgdeckassistant.exception.ConflictException;
+import com.clementcogo.mtgdeckassistant.exception.GeminiException;
 import com.clementcogo.mtgdeckassistant.exception.NotFoundException;
 import com.clementcogo.mtgdeckassistant.exception.RateLimitException;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException.class)
     public Map<String, String> handleNotFoundException(NotFoundException ex) {
-        return Map.of("error", ex.getMessage());
+        return Map.of("error","Not Found",
+                "message", ex.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -58,6 +60,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RateLimitException.class)
     public Map<String, String> handleRateLimitException(RateLimitException ex) {
         return Map.of("error","Too Many Requests",
+                "message", ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_GATEWAY)
+    @ExceptionHandler(GeminiException.class)
+    public Map<String, String> handleGeminiException(GeminiException ex) {
+        return Map.of("error","Request failed",
                 "message", ex.getMessage());
     }
 

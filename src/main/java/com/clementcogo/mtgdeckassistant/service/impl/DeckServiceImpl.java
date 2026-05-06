@@ -251,4 +251,10 @@ public class DeckServiceImpl implements DeckService {
         return new DeckResponse(deck.getId(), deck.getName(), deck.getFormat(), deck.getCreatedAt());
     }
 
+    @Override
+    public Deck getEntityByDeckId(Long deckId) {
+        return deckRepository.findById(deckId)
+                .orElseThrow(() -> new NotFoundException("Deck not found with id " + deckId));
+    }
+
 }

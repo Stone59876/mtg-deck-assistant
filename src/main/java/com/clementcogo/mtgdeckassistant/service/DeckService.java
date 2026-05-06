@@ -19,4 +19,5 @@ public interface DeckService {
     DeckValidationResponse validateDeck(Long deckId);
     SetCommanderResponse setCommander(Long deckId, String commander);
     CommanderResponse getCommander(Long deckId);
+    Deck getEntityByDeckId(Long deckId);
 }

@@ -1,10 +1,8 @@
     package com.clementcogo.mtgdeckassistant.controller;
 
-    import com.clementcogo.mtgdeckassistant.dto.request.AddCardRequest;
-    import com.clementcogo.mtgdeckassistant.dto.request.CreateDeckRequest;
-    import com.clementcogo.mtgdeckassistant.dto.request.ImportDeckListRequest;
-    import com.clementcogo.mtgdeckassistant.dto.request.SetCommanderRequest;
+    import com.clementcogo.mtgdeckassistant.dto.request.*;
     import com.clementcogo.mtgdeckassistant.dto.response.*;
+    import com.clementcogo.mtgdeckassistant.service.DeckAssistantService;
     import com.clementcogo.mtgdeckassistant.service.DeckService;
     import jakarta.validation.Valid;
     import org.springframework.http.HttpStatus;
@@ -18,10 +16,12 @@
 
         private final DeckService deckService;
 
-        public DeckController(DeckService deckService) {
-            this.deckService = deckService;
-        }
+        private final DeckAssistantService deckAssistantService;
 
+        public DeckController(DeckService deckService,DeckAssistantService deckAssistantService) {
+            this.deckService = deckService;
+            this.deckAssistantService = deckAssistantService;
+        }
 
         @PostMapping()
         @ResponseStatus(HttpStatus.CREATED)
@@ -73,6 +73,11 @@
         @GetMapping("/{id}/commander")
         public CommanderResponse getCommander(@PathVariable Long id) { return deckService.getCommander(id);}
 
+        @PostMapping("/{id}/suggestions")
+        @ResponseStatus(HttpStatus.OK)
+        public DeckSuggestionResponse getDeckSuggestion(@PathVariable Long id,@Valid @RequestBody DeckSuggestionRequest request){
+            return deckAssistantService.getSuggestion(id,request);
+        }
 
 
     }
