@@ -77,6 +77,8 @@ public GeminiServiceImpl(GeminiClient geminiClient){
             query.setTitle(query.getTitle().trim());
         }
 
+        // TEST push git
+
     }
 
 }
