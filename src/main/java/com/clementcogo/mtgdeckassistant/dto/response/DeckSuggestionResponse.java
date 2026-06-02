@@ -21,11 +21,11 @@ public class DeckSuggestionResponse {
     List<AssistantSuggestionResponse> queries;
     Instant generatedAt;
 
-    public DeckSuggestionResponse(Long deckId, String commander, List<AssistantSuggestionResponse> queries, Instant generatedAt) {
+    public DeckSuggestionResponse(Long deckId,String commander,List<AssistantSuggestionResponse> queries) {
         this.deckId = deckId;
         this.commander = commander;
         this.queries = queries;
-        this.generatedAt = generatedAt;
+        this.generatedAt = Instant.now();
     }
 
     public DeckSuggestionResponse() {

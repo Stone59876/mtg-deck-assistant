@@ -33,13 +33,6 @@ public class AssistantSuggestionResponse {
         this.cards = cards;
     }
 
-    public AssistantSuggestionResponse(String title, String reason, String rawQuery, String order) {
-        this.title = title;
-        this.reason = reason;
-        this.rawQuery = rawQuery;
-        this.order = order.toLowerCase().trim();
-    }
-
     public AssistantSuggestionResponse() {
     }
 

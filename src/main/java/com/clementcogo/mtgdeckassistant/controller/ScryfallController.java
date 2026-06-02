@@ -21,7 +21,7 @@ public class ScryfallController {
     }
 
     @GetMapping("/search")
-    public SearchPageResponse searchScryfall(@RequestParam String query, @RequestParam String order,@RequestParam int limit,@RequestParam int page){
+    public SearchPageResponse searchScryfall(@RequestParam String query, @RequestParam String order,@RequestParam int limit,@RequestParam int page) {
         return scryfallService.searchScryfall(query,order,limit,page);
     }
 

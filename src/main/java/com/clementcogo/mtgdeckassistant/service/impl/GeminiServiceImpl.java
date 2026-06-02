@@ -17,8 +17,8 @@ public GeminiServiceImpl(GeminiClient geminiClient){
 }
 
     @Override
-    public ScryfallQuerySuggestions getSuggestions(String commanderName,String typeLine,String cmc,String colorIdentity,String oracleText) {
-            ScryfallQuerySuggestions suggestions = geminiClient.getSuggestions(commanderName, typeLine, cmc,colorIdentity,oracleText);
+    public ScryfallQuerySuggestions getSuggestions(String commanderName,String typeLine,String cmc,String colorIdentity,String oracleText,String prompt) {
+            ScryfallQuerySuggestions suggestions = geminiClient.getSuggestions(commanderName, typeLine, cmc,colorIdentity,oracleText,prompt);
             if(suggestions == null) {
                 throw new GeminiException("Suggestion returned null");
             } else if (suggestions.getQueries() == null || suggestions.getQueries().isEmpty()) {

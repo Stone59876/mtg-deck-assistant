@@ -19,13 +19,18 @@ import jakarta.validation.constraints.Min;
 public class DeckSuggestionRequest {
     @Max(100) @Min(1)
     int limit= 5;
-    String lang = "EN";
+    String lang = "EN"; //Unused TODO
     String order = "edhrec";
+    @Max(10) @Min(1)
+    int page=1;
+    String prompt;
 
-    public DeckSuggestionRequest(int limit, String lang, String order) {
+    public DeckSuggestionRequest(int limit, String lang, String order,int page,String prompt) {
         this.limit = limit;
         this.lang = lang;
         this.order = order;
+        this.page = page;
+        this.prompt = prompt;
     }
 
     public DeckSuggestionRequest() {}
@@ -52,5 +57,21 @@ public class DeckSuggestionRequest {
 
     public void setOrder(String order) {
         this.order = order;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public String getPrompt() {
+        return prompt;
+    }
+
+    public void setPrompt(String prompt) {
+        this.prompt = prompt;
     }
 }

@@ -35,7 +35,8 @@ public class GeminiClient {
             "- Réponds UNIQUEMENT en JSON valide (pas de backticks, pas de texte).\n" +
             "La réponse doit commencer par { et se terminer par } \n" +
             "Aucun texte avant/après \n" +
-            "- La réponse DOIT respecter exactement ce schéma :\n" +
+            "Prends en compte cette demande utilisateur si indiqué : %s \n" +
+            "Ensuite - La réponse DOIT respecter exactement ce schéma :\n" +
             "{\n" +
             "  \"queries\": [\n" +
             "    { \"title\": string, \"reason\": string, \"rawQuery\": string, \"order\": \"edhrec\" },\n" +
@@ -63,9 +64,9 @@ public class GeminiClient {
         this.model = model;
     }
 
-    public ScryfallQuerySuggestions getSuggestions(String commander,String typeLine,String cmc,String colorIdentity,String oracle) {
+    public ScryfallQuerySuggestions getSuggestions(String commander,String typeLine,String cmc,String colorIdentity,String oracle,String promptDetails) {
 
-        String prompt = String.format(promptTemplate,commander,oracle,typeLine,cmc,colorIdentity);
+        String prompt = String.format(promptTemplate,promptDetails,commander,oracle,typeLine,cmc,colorIdentity);
 
         GenerateContentResponse response =
                 client.models.generateContent(

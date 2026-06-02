@@ -16,6 +16,7 @@ import com.clementcogo.mtgdeckassistant.service.ScryfallService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,25 +46,16 @@ public class DeckAssistantServiceImpl implements DeckAssistantService {
             throw new IllegalArgumentException("This commander deck does not have a commander");
         }
         CardPreviewResponse commander = scryfallService.getCardPreviewByExactName(deck.getCommander().getCardName());
-        ScryfallQuerySuggestions suggestions = geminiService.getSuggestions(commander.getName(),commander.getTypeLine(),commander.getCmc().toString(),commander.getColorIdentity().toString(),commander.getOracleText());
+        ScryfallQuerySuggestions suggestions = geminiService.getSuggestions(commander.getName(),commander.getTypeLine(),commander.getCmc().toString(),commander.getColorIdentityClean(),commander.getOracleText(),request.getPrompt());
         List<AssistantSuggestionResponse> queries = new ArrayList<>();
         for (RawScryfallQuery query : suggestions.getQueries()) {
-            queries.add(getQueryCards(query));
+            queries.add(getQueryCards(query, request.getLimit(), request.getPage(), request.getOrder()));
         }
-        DeckSuggestionResponse response = new DeckSuggestionResponse();
-        response.setDeckId(deckId);
-        response.setCommander(commander.getName());
-        response.setQueries(queries);
-        return response;
+        return new DeckSuggestionResponse(deckId, commander.getName(),queries);
     }
 
-    private AssistantSuggestionResponse getQueryCards(RawScryfallQuery query){
-        AssistantSuggestionResponse response = new AssistantSuggestionResponse();
-        response.setRawQuery(query.getRawQuery());
-        response.setOrder(query.getOrder());
-        response.setReason(query.getReason());
-        response.setTitle(query.getTitle());
-        response.setCards(scryfallService.searchScryfall(query.getRawQuery(), query.getOrder(), 10,1).getSearchData());
+    private AssistantSuggestionResponse getQueryCards(RawScryfallQuery query,int limit,int page, String order){
+        AssistantSuggestionResponse response = new AssistantSuggestionResponse(query.getTitle(), query.getReason(), query.getRawQuery(), order,scryfallService.searchScryfall(query.getRawQuery(), order, limit,page).getSearchData());
         return response;
     }
 

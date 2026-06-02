@@ -91,6 +91,15 @@ public class CardPreviewResponse {
         return colorIdentity;
     }
 
+    public String getColorIdentityClean() {
+        if(this.getColorIdentity() != null) {
+            if (!this.getColorIdentity().isEmpty()) {
+                return String.join("", colorIdentity);
+            }
+        }
+        return "";
+    }
+
     public void setColorIdentity(List<String> colorIdentity) {
         this.colorIdentity = colorIdentity;
     }
