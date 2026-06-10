@@ -29,7 +29,12 @@ public class AssistantSuggestionResponse {
         this.title = title;
         this.reason = reason;
         this.rawQuery = rawQuery;
-        this.order = order.toLowerCase().trim();
+        if(order != null && !order.trim().isEmpty()) {
+            this.order = order.toLowerCase().trim();
+        }
+        else {
+            this.order = "edhrec";
+        }
         this.cards = cards;
     }
 
@@ -65,7 +70,12 @@ public class AssistantSuggestionResponse {
     }
 
     public void setOrder(String order) {
-        this.order = order.toLowerCase().trim();
+        if(order != null && !order.trim().isEmpty()) {
+            this.order = order.toLowerCase().trim();
+        }
+        else {
+            this.order = "edhrec";
+        }
     }
 
     public List<CardPreviewResponse> getCards() {

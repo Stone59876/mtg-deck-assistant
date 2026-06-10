@@ -30,7 +30,11 @@ public class DeckSuggestionRequest {
         this.lang = lang;
         this.order = order;
         this.page = page;
-        this.prompt = prompt;
+        if(prompt != null && !prompt.trim().IsEmpty()) {
+            this.prompt = prompt;
+        } else {
+            this.prompt = "Aucune préfèrence";
+        }
     }
 
     public DeckSuggestionRequest() {}
@@ -72,6 +76,10 @@ public class DeckSuggestionRequest {
     }
 
     public void setPrompt(String prompt) {
-        this.prompt = prompt;
+        if(prompt != null && !prompt.trim().IsEmpty()) {
+            this.prompt = prompt;
+        } else {
+            this.prompt = "Aucune préfèrence";
+        }
     }
 }
