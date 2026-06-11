@@ -2,6 +2,7 @@ package com.clementcogo.mtgdeckassistant.dto.request;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 
 /**
  * Paramètres de la demande de suggestions pour un deck.
@@ -23,6 +24,7 @@ public class DeckSuggestionRequest {
     String order = "edhrec";
     @Max(10) @Min(1)
     int page=1;
+    @Size(max = 1000)
     String prompt;
 
     public DeckSuggestionRequest(int limit, String lang, String order,int page,String prompt) {
@@ -30,11 +32,7 @@ public class DeckSuggestionRequest {
         this.lang = lang;
         this.order = order;
         this.page = page;
-        if(prompt != null && !prompt.trim().IsEmpty()) {
-            this.prompt = prompt;
-        } else {
-            this.prompt = "Aucune préfèrence";
-        }
+        setPrompt(prompt);
     }
 
     public DeckSuggestionRequest() {}
@@ -76,10 +74,10 @@ public class DeckSuggestionRequest {
     }
 
     public void setPrompt(String prompt) {
-        if(prompt != null && !prompt.trim().IsEmpty()) {
-            this.prompt = prompt;
+        if(prompt != null && !prompt.trim().isEmpty()) {
+            this.prompt = prompt.trim();
         } else {
-            this.prompt = "Aucune préfèrence";
+            this.prompt = "Aucune préférence";
         }
     }
 }

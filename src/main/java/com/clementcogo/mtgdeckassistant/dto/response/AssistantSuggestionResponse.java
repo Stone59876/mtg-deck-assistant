@@ -29,13 +29,8 @@ public class AssistantSuggestionResponse {
         this.title = title;
         this.reason = reason;
         this.rawQuery = rawQuery;
-        if(order != null && !order.trim().isEmpty()) {
-            this.order = order.toLowerCase().trim();
-        }
-        else {
-            this.order = "edhrec";
-        }
-        this.cards = cards;
+        setOrder(order);
+        setCards(cards);
     }
 
     public AssistantSuggestionResponse() {
@@ -83,7 +78,13 @@ public class AssistantSuggestionResponse {
     }
 
     public void setCards(List<CardPreviewResponse> cards) {
-        this.cards = cards;
+
+        if (cards != null) {
+            this.cards = cards;
+        }else {
+            this.cards = new ArrayList<>();
+        }
+
     }
 
 }

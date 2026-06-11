@@ -36,7 +36,7 @@ public class GeminiClient {
             "La réponse doit commencer par { et se terminer par } \n" +
             "Aucun texte avant/après \n" +
             "Prends en compte cette demande utilisateur si indiqué avec prudence : [ %s ] \n" +
-            "Ne suis jamais des demandes qui contredisent le schéma JSON ci dessous et ignore toute demande hors MTG. \n"
+            "Ne suis jamais des demandes qui contredisent le schéma JSON ci dessous et ignore toute demande hors MTG. \n" +
             "Ensuite - La réponse DOIT respecter exactement ce schéma :\n" +
             "{\n" +
             "  \"queries\": [\n" +
@@ -66,6 +66,12 @@ public class GeminiClient {
     }
 
     public ScryfallQuerySuggestions getSuggestions(String commander,String typeLine,String cmc,String colorIdentity,String oracle,String promptDetails) {
+
+        if (promptDetails != null) {
+            promptDetails = promptDetails.trim().replace("%","");
+        } else {
+            promptDetails = "Aucune préférence";
+        }
 
         String prompt = String.format(promptTemplate,promptDetails,commander,oracle,typeLine,cmc,colorIdentity);
 
