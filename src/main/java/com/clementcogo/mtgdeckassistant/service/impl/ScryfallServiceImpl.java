@@ -29,8 +29,8 @@ public class ScryfallServiceImpl implements ScryfallService {
     @Override
     @Cacheable(cacheNames = "scryfallSearch" , key = "#order.trim().toLowerCase() + ':' + #query.trim().toLowerCase() + ':' + #limit+ ':' + #page")
     public SearchPageResponse searchScryfall(String query, String order,int limit,int page) {
-            if(limit < 1 || limit > 100) {
-                throw new IllegalArgumentException("limit should be more than 0 and less than 100");
+            if(limit < 1 || limit > 175) {
+                throw new IllegalArgumentException("limit should be at least 1 and less than or equal to 175");
             }
             if(page < 1 ){
                 throw new IllegalArgumentException("page should be a positive integer ( > 0)");

@@ -26,13 +26,16 @@ public class DeckSuggestionRequest {
     int page=1;
     @Size(max = 1000)
     String prompt;
+    @Max(100) @Min(0)
+    int duplicateBuffer = 50;
 
-    public DeckSuggestionRequest(int limit, String lang, String order,int page,String prompt) {
+    public DeckSuggestionRequest(int limit, String lang, String order,int page,String prompt,int duplicateBuffer) {
         this.limit = limit;
         this.lang = lang;
         this.order = order;
         this.page = page;
         setPrompt(prompt);
+        this.duplicateBuffer = duplicateBuffer;
     }
 
     public DeckSuggestionRequest() {}
@@ -79,5 +82,13 @@ public class DeckSuggestionRequest {
         } else {
             this.prompt = "Aucune préférence";
         }
+    }
+
+    public int getDuplicateBuffer() {
+        return duplicateBuffer;
+    }
+
+    public void setDuplicateBuffer(int duplicateBuffer) {
+        this.duplicateBuffer = duplicateBuffer;
     }
 }
