@@ -5,7 +5,7 @@ API backend en **Java / Spring Boot** pour gérer des decks **Magic: The Gatheri
 ---
 
 ## Stack
-- **Java 21**
+- **Java 25**
 - **Spring Boot 3.5.10** (Spring Web, Validation)
 - **Spring Data JPA**
 - **H2** (base de données de dev)
