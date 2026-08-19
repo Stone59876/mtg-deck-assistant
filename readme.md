@@ -29,7 +29,7 @@ API backend en **Java / Spring Boot** pour gérer des decks **Magic: The Gatheri
 ## Lancer le projet
 
 ### Prérequis
-- Java 21
+- Java 25
 
 ### Démarrage (Maven)
 ```bash
