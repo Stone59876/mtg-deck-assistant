@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "decks")
@@ -76,5 +77,9 @@ public class Deck {
 
     public DeckSlot getCommander() {
         return commander;
+    }
+
+    public List<String> getCardNames() {
+        return this.slots.stream().map(DeckSlot::getCardName).toList();
     }
 }

@@ -8,6 +8,9 @@ import com.clementcogo.mtgdeckassistant.entities.DeckSlot;
 import com.clementcogo.mtgdeckassistant.entities.Format;
 import com.clementcogo.mtgdeckassistant.exception.ConflictException;
 import com.clementcogo.mtgdeckassistant.exception.NotFoundException;
+import com.clementcogo.mtgdeckassistant.integration.scryfall.ScryfallClient;
+import com.clementcogo.mtgdeckassistant.integration.scryfall.model.ScryfallCardCollection;
+import com.clementcogo.mtgdeckassistant.integration.scryfall.model.ScryfallCollectionRequest;
 import com.clementcogo.mtgdeckassistant.repository.DeckRepository;
 import com.clementcogo.mtgdeckassistant.repository.DeckSlotRepository;
 import com.clementcogo.mtgdeckassistant.service.DeckService;
@@ -16,10 +19,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Transactional
@@ -42,15 +42,13 @@ public class DeckServiceImpl implements DeckService {
 
     @Override
     public DeckResponse getById(Long id) {
-        Deck deck = deckRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Deck not found with id " + id));
+        Deck deck = getEntityByDeckId(id);
         return toDeckResponse(deck);
     }
 
     @Override
     public DeckResponse addCardToDeck(Long id, AddCardRequest request) {
-        Deck deck = deckRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Deck not found with id " + id));
+        Deck deck = getEntityByDeckId(id);
         String cardName = request.getCardName().trim();
         boolean mergeDuplicates = !deck.getFormat().equals(Format.COMMANDER);
         boolean alreadyExist = upsertCard(deck, cardName, request.getQty(),mergeDuplicates);
@@ -63,8 +61,7 @@ public class DeckServiceImpl implements DeckService {
 
     @Override
     public ImportResultResponse importDeckList(Long id, String decklist,boolean mergeDuplicates) {
-        Deck deck = deckRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Deck not found with id " + id));
+        Deck deck = getEntityByDeckId(id);
         DecklistParseResult parseResult = parseDeckList(decklist);
         ImportResultResponse response = new ImportResultResponse(id, parseResult.getIgnoredLines(), parseResult.getInvalidLines());
         for (DeckSlot deckslot : parseResult.getSlots()) {
@@ -147,8 +144,7 @@ public class DeckServiceImpl implements DeckService {
 
     @Override
     public List<SlotResponse> getCards(Long deckId) {
-        Deck deck = deckRepository.findById(deckId)
-                .orElseThrow(() -> new NotFoundException("Deck not found with id " + deckId));
+        Deck deck = getEntityByDeckId(deckId);
         List<DeckSlot> slots = deck.getSlots();
         List<SlotResponse> slotResponses = new ArrayList<>();
         for (DeckSlot card : slots) {
@@ -161,8 +157,7 @@ public class DeckServiceImpl implements DeckService {
     @Override
     public DeckValidationResponse validateDeck(Long deckId) {
         DeckValidationResponse response = new DeckValidationResponse(deckId);
-        Deck deck = deckRepository.findById(deckId)
-                .orElseThrow(() -> new NotFoundException("Deck not found with id " + deckId));
+        Deck deck = getEntityByDeckId(deckId);
         response.setValid(true);
         List<DeckSlot> slots = deck.getSlots();
         response.setFormat(deck.getFormat());
@@ -205,8 +200,7 @@ public class DeckServiceImpl implements DeckService {
     @Override
     public SetCommanderResponse setCommander(Long deckId,String commander) {
         SetCommanderResponse response = new SetCommanderResponse(deckId,commander);
-        Deck deck = deckRepository.findById(deckId)
-                .orElseThrow(() -> new NotFoundException("Deck not found with id " + deckId));
+        Deck deck = getEntityByDeckId(deckId);
         if(!deck.getFormat().equals(Format.COMMANDER)) {
             response.setValid(false);
             throw new IllegalArgumentException("This is not a commander deck");
@@ -230,8 +224,7 @@ public class DeckServiceImpl implements DeckService {
     @Override
     public CommanderResponse getCommander(Long deckId) {
         CommanderResponse response = new CommanderResponse(deckId);
-        Deck deck = deckRepository.findById(deckId)
-                .orElseThrow(() -> new NotFoundException("Deck not found with id " + deckId));
+        Deck deck = getEntityByDeckId(deckId);
         if(!deck.getFormat().equals(Format.COMMANDER)) {
             throw new IllegalArgumentException("This is not a commander deck");
         }

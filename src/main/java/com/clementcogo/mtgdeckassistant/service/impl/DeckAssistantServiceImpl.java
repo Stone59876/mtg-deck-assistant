@@ -3,13 +3,16 @@ package com.clementcogo.mtgdeckassistant.service.impl;
 import com.clementcogo.mtgdeckassistant.dto.request.DeckSuggestionRequest;
 import com.clementcogo.mtgdeckassistant.dto.response.AssistantSuggestionResponse;
 import com.clementcogo.mtgdeckassistant.dto.response.CardPreviewResponse;
+import com.clementcogo.mtgdeckassistant.dto.response.DeckStatsResponse;
 import com.clementcogo.mtgdeckassistant.dto.response.DeckSuggestionResponse;
 import com.clementcogo.mtgdeckassistant.entities.Deck;
 import com.clementcogo.mtgdeckassistant.entities.DeckSlot;
 import com.clementcogo.mtgdeckassistant.entities.Format;
-import com.clementcogo.mtgdeckassistant.exception.NotFoundException;
 import com.clementcogo.mtgdeckassistant.integration.gemini.model.RawScryfallQuery;
 import com.clementcogo.mtgdeckassistant.integration.gemini.model.ScryfallQuerySuggestions;
+import com.clementcogo.mtgdeckassistant.integration.scryfall.ScryfallClient;
+import com.clementcogo.mtgdeckassistant.integration.scryfall.model.ScryfallCardCollection;
+import com.clementcogo.mtgdeckassistant.integration.scryfall.model.ScryfallCollectionRequest;
 import com.clementcogo.mtgdeckassistant.service.DeckAssistantService;
 import com.clementcogo.mtgdeckassistant.service.DeckService;
 import com.clementcogo.mtgdeckassistant.service.GeminiService;
@@ -17,11 +20,7 @@ import com.clementcogo.mtgdeckassistant.service.ScryfallService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,7 +56,8 @@ public class DeckAssistantServiceImpl implements DeckAssistantService {
             existingCards.add(d.getCardName().trim().toLowerCase());
         }
         for (RawScryfallQuery query : suggestions.getQueries()) {
-            AssistantSuggestionResponse assistantSuggestionResponse = getQueryCards(query, request.getLimit() + request.getDuplicateBuffer(), request.getPage(), request.getOrder());
+            int fetchLimit = Math.min(175, request.getLimit() + request.getDuplicateBuffer());
+            AssistantSuggestionResponse assistantSuggestionResponse = getQueryCards(query, fetchLimit, request.getPage(), request.getOrder());
             removeDuplicates(assistantSuggestionResponse,existingCards);
             assistantSuggestionResponse.setCards(assistantSuggestionResponse.getCards().stream().limit(request.getLimit()).collect(Collectors.toList()));
             queries.add(assistantSuggestionResponse);
@@ -66,8 +66,7 @@ public class DeckAssistantServiceImpl implements DeckAssistantService {
     }
 
     private AssistantSuggestionResponse getQueryCards(RawScryfallQuery query,int limit,int page, String order){
-        AssistantSuggestionResponse response = new AssistantSuggestionResponse(query.getTitle(), query.getReason(), query.getRawQuery(), order,scryfallService.searchScryfall(query.getRawQuery(), order, limit,page).getSearchData());
-        return response;
+        return new AssistantSuggestionResponse(query.getTitle(), query.getReason(), query.getRawQuery(), order,scryfallService.searchScryfall(query.getRawQuery(), order, limit,page).getSearchData());
     }
 
     private void removeDuplicates(AssistantSuggestionResponse query,Set<String> existingCards) {
@@ -75,9 +74,21 @@ public class DeckAssistantServiceImpl implements DeckAssistantService {
         for(CardPreviewResponse card:query.getCards()) {
             if(!existingCards.contains(card.getName().trim().toLowerCase())) {
                 newCards.add(card);
+            }else{
+                //System.out.println("DUPLICATE FOUND: " + card.getName() + " in QUERY :" + query.getTitle());
             }
         }
         query.setCards(newCards);
     }
+    //TODO
+    @Override
+    public DeckStatsResponse getDeckStats(Long deckId) {
+        Deck deck = deckService.getEntityByDeckId(deckId);
+        DeckStatsResponse response = new DeckStatsResponse(deckId,deck.getName(),deck.getCreatedAt(),deck.getSlots().size(),deck.getCommander().getCardName());
+        List<String> cardNames = deck.getCardNames();
+        ScryfallCardCollection result = scryfallService.getCardCollectionByNames(cardNames);
+        return response;
+    }
+
 
 }

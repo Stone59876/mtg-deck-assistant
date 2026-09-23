@@ -1,6 +1,7 @@
 package com.clementcogo.mtgdeckassistant.service;
 
 import com.clementcogo.mtgdeckassistant.dto.request.DeckSuggestionRequest;
+import com.clementcogo.mtgdeckassistant.dto.response.DeckStatsResponse;
 import com.clementcogo.mtgdeckassistant.dto.response.DeckSuggestionResponse;
 
 /**
@@ -18,7 +19,8 @@ import com.clementcogo.mtgdeckassistant.dto.response.DeckSuggestionResponse;
  * - Il coordonne les dépendances (DeckService, ScryfallService, GeminiClient, etc.).
  *
  */
-
+//TODO
 public interface DeckAssistantService {
     DeckSuggestionResponse getSuggestion(Long id, DeckSuggestionRequest request);
+    DeckStatsResponse getDeckStats(Long deckId);
 }

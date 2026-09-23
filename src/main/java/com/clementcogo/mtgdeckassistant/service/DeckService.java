@@ -4,7 +4,6 @@ import com.clementcogo.mtgdeckassistant.dto.request.AddCardRequest;
 import com.clementcogo.mtgdeckassistant.dto.request.CreateDeckRequest;
 import com.clementcogo.mtgdeckassistant.dto.response.*;
 import com.clementcogo.mtgdeckassistant.entities.Deck;
-import com.clementcogo.mtgdeckassistant.entities.DeckSlot;
 
 
 import java.util.List;
@@ -21,3 +20,4 @@ public interface DeckService {
     CommanderResponse getCommander(Long deckId);
     Deck getEntityByDeckId(Long deckId);
 }
+//TODO

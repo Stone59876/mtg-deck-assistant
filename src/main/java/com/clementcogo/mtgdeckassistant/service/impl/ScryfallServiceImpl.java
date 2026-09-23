@@ -3,11 +3,15 @@ package com.clementcogo.mtgdeckassistant.service.impl;
 import com.clementcogo.mtgdeckassistant.dto.response.CardPreviewResponse;
 import com.clementcogo.mtgdeckassistant.dto.response.SearchPageResponse;
 import com.clementcogo.mtgdeckassistant.integration.scryfall.ScryfallClient;
+import com.clementcogo.mtgdeckassistant.integration.scryfall.model.ScryfallCardCollection;
 import com.clementcogo.mtgdeckassistant.integration.scryfall.model.ScryfallCardRaw;
+import com.clementcogo.mtgdeckassistant.integration.scryfall.model.ScryfallCollectionRequest;
 import com.clementcogo.mtgdeckassistant.integration.scryfall.model.ScryfallSearchResponseRaw;
 import com.clementcogo.mtgdeckassistant.service.ScryfallService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 
 @Service
@@ -49,5 +53,11 @@ public class ScryfallServiceImpl implements ScryfallService {
             }
             return result;
     }
-
+    //TODO
+    @Override
+    @Cacheable(cacheNames = "scryfallCollection" , key = "#cardNames")
+    public ScryfallCardCollection getCardCollectionByNames(List<String> cardNames){
+        ScryfallCardCollection scryfallCardCollection = scryfallClient.getCardCollection(cardNames);
+        return scryfallCardCollection;
+    }
 }
