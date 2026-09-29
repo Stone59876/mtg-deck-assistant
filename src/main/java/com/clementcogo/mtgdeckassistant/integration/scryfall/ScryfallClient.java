@@ -52,12 +52,10 @@ public class ScryfallClient {
         if(collection == null) {
             throw new NotFoundException("Scryfall collection search returned 0 result with query :" + request.getIdentifiers().toString());
         }else{
-            if(collection.getCollectionData() == null || collection.getCollectionData().isEmpty()){
+            if((collection.getCollectionData() == null || collection.getCollectionData().isEmpty() ) && (collection.getNotFound() == null || collection.getNotFound().isEmpty())){
                 throw new NotFoundException("Scryfall collection search returned 0 result with query :" + request.getIdentifiers().toString());
             }
-            else{
-                return collection;
-            }
+            return collection;
         }
     }
 

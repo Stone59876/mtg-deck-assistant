@@ -15,15 +15,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
-
-import static java.lang.Integer.min;
-
 
 @Service
 public class ScryfallServiceImpl implements ScryfallService {
 
     private final ScryfallClient scryfallClient;
+    private static final int COLLECTION_BATCH_SIZE = 75;
+    private static final int SEARCH_BATCH_SIZE = 175;
 
     public ScryfallServiceImpl(ScryfallClient scryfallClient){
         this.scryfallClient = scryfallClient;
@@ -66,18 +64,23 @@ public class ScryfallServiceImpl implements ScryfallService {
         List<ScryfallCardRaw> allCards = new ArrayList<>();
         List<Map<String,String>> notFound = new ArrayList<>();
         ScryfallCardCollection collection = new ScryfallCardCollection();
-        for(int i = 0; i < cardNames.size(); i += 75){
-            int end = min(i + 75,cardNames.size());
+        for(int i = 0; i < cardNames.size(); i += COLLECTION_BATCH_SIZE){
+            int end = Math.min(i + COLLECTION_BATCH_SIZE,cardNames.size());
             List<String> batch = cardNames.subList(i,end);
             List<Map<String,String>> identifiers = new ArrayList<>();
             batch.forEach(s -> {
                 Map<String, String> identifier = new HashMap<>();
+                if (s.contains("//")) {
+                    s = s.substring(0,s.indexOf("/"));
+                }
                 identifier.put("name",s.trim());
                 identifiers.add(identifier);
             });
             ScryfallCollectionRequest scryfallCollectionRequest = new ScryfallCollectionRequest(identifiers);
             ScryfallCardCollection batchResult = scryfallClient.getCardCollection(scryfallCollectionRequest);
-            allCards.addAll(batchResult.getCollectionData());
+            if(batchResult.getCollectionData() != null) {
+                allCards.addAll(batchResult.getCollectionData());
+            }
             if(batchResult.getNotFound() != null) {
                 notFound.addAll(batchResult.getNotFound());
             }
