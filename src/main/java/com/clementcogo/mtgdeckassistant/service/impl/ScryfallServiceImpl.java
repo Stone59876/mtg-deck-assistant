@@ -11,7 +11,13 @@ import com.clementcogo.mtgdeckassistant.service.ScryfallService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import static java.lang.Integer.min;
 
 
 @Service
@@ -53,11 +59,35 @@ public class ScryfallServiceImpl implements ScryfallService {
             }
             return result;
     }
-    //TODO
+
     @Override
     @Cacheable(cacheNames = "scryfallCollection" , key = "#cardNames")
     public ScryfallCardCollection getCardCollectionByNames(List<String> cardNames){
-        ScryfallCardCollection scryfallCardCollection = scryfallClient.getCardCollection(cardNames);
-        return scryfallCardCollection;
+        List<ScryfallCardRaw> allCards = new ArrayList<>();
+        List<Map<String,String>> notFound = new ArrayList<>();
+        ScryfallCardCollection collection = new ScryfallCardCollection();
+        for(int i = 0; i < cardNames.size(); i += 75){
+            int end = min(i + 75,cardNames.size());
+            List<String> batch = cardNames.subList(i,end);
+            List<Map<String,String>> identifiers = new ArrayList<>();
+            batch.forEach(s -> {
+                Map<String, String> identifier = new HashMap<>();
+                identifier.put("name",s.trim());
+                identifiers.add(identifier);
+            });
+            System.out.println("identifiers :" + identifiers.toString());
+            System.out.println("cardNames = " + cardNames.size());
+            System.out.println("cardNames content = " + cardNames);
+            System.out.println("identifiers = " + identifiers.size());
+            ScryfallCollectionRequest scryfallCollectionRequest = new ScryfallCollectionRequest(identifiers);
+            ScryfallCardCollection batchResult = scryfallClient.getCardCollection(scryfallCollectionRequest);
+            allCards.addAll(batchResult.getCollectionData());
+            if(batchResult.getNotFound() != null) {
+                notFound.addAll(batchResult.getNotFound());
+            }
+        }
+        collection.setCollectionData(allCards);
+        collection.setNotFound(notFound);
+        return collection;
     }
 }

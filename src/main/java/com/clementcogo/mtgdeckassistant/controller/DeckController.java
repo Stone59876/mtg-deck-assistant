@@ -79,10 +79,7 @@
             return deckAssistantService.getSuggestion(id,request);
         }
 
-        //TODO
         @GetMapping("/{id}/stats")
         public DeckStatsResponse getDeckStats(@PathVariable Long id) { return deckAssistantService.getDeckStats(id);}
-
-
 
     }

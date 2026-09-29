@@ -9,10 +9,8 @@ public class ScryfallCollectionRequest {
     public ScryfallCollectionRequest(List<Map<String, String>> identifiers) {
         this.identifiers = identifiers;
     }
-    //TODO
-    public ScryfallCollectionRequest() {
-        this.identifiers = null;
-    }
+
+    public ScryfallCollectionRequest() {}
 
     public List<Map<String, String>> getIdentifiers() {
         return identifiers;

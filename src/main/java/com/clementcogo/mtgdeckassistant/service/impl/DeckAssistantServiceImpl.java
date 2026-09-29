@@ -10,9 +10,8 @@ import com.clementcogo.mtgdeckassistant.entities.DeckSlot;
 import com.clementcogo.mtgdeckassistant.entities.Format;
 import com.clementcogo.mtgdeckassistant.integration.gemini.model.RawScryfallQuery;
 import com.clementcogo.mtgdeckassistant.integration.gemini.model.ScryfallQuerySuggestions;
-import com.clementcogo.mtgdeckassistant.integration.scryfall.ScryfallClient;
 import com.clementcogo.mtgdeckassistant.integration.scryfall.model.ScryfallCardCollection;
-import com.clementcogo.mtgdeckassistant.integration.scryfall.model.ScryfallCollectionRequest;
+import com.clementcogo.mtgdeckassistant.integration.scryfall.model.ScryfallCardRaw;
 import com.clementcogo.mtgdeckassistant.service.DeckAssistantService;
 import com.clementcogo.mtgdeckassistant.service.DeckService;
 import com.clementcogo.mtgdeckassistant.service.GeminiService;
@@ -84,9 +83,75 @@ public class DeckAssistantServiceImpl implements DeckAssistantService {
     @Override
     public DeckStatsResponse getDeckStats(Long deckId) {
         Deck deck = deckService.getEntityByDeckId(deckId);
-        DeckStatsResponse response = new DeckStatsResponse(deckId,deck.getName(),deck.getCreatedAt(),deck.getSlots().size(),deck.getCommander().getCardName());
+        String commanderName = "";
+        if (deck.getCommander() != null){
+            commanderName = deck.getCommander().getCardName();
+        }
+        DeckStatsResponse response = new DeckStatsResponse(deckId,deck.getName(),deck.getCreatedAt(),0,commanderName,deck.getFormat());
         List<String> cardNames = deck.getCardNames();
         ScryfallCardCollection result = scryfallService.getCardCollectionByNames(cardNames);
+        Map<String, ScryfallCardRaw> cardsByName = new HashMap<>();
+         for (ScryfallCardRaw scryfallCardRaw: result.getCollectionData()) {
+             cardsByName.put(scryfallCardRaw.getName().trim().toLowerCase(),scryfallCardRaw);
+         }
+         int totalArtifacts = 0;
+         int totalSorceries = 0;
+         int totalCreatures = 0;
+         int totalLands = 0;
+         int totalInstants = 0;
+         int totalPlaneswalkers = 0;
+         int totalEnchantments = 0;
+         int totalCards = 0;
+         double averageCmc = 0;
+         int totalCardsWithDetails = 0;
+         HashMap<Integer,Integer> manaCurve = new HashMap<>();
+         for(DeckSlot card:deck.getSlots()){
+             totalCards += card.getQty();
+             ScryfallCardRaw cardDetails = cardsByName.get(card.getCardName().trim().toLowerCase());
+             if(cardDetails != null) {
+                 String cardType = cardDetails.getType_line().trim().toLowerCase();
+                 if(cardType.contains("artifact")) {
+                     totalArtifacts += card.getQty();
+                 }
+                 if(cardType.contains("creature")) {
+                     totalCreatures += card.getQty();
+                 }
+                 if(cardType.contains("sorcery")) {
+                     totalSorceries += card.getQty();
+                 }
+                 if(cardType.contains("enchantment")) {
+                     totalEnchantments += card.getQty();
+                 }
+                 if(cardType.contains("instant")) {
+                     totalInstants += card.getQty();
+                 }
+                 if(cardType.contains("planeswalker")) {
+                     totalPlaneswalkers += card.getQty();
+                 }
+                 if(cardType.contains("land")) {
+                     totalLands += card.getQty();
+                 }
+                 else {
+                     totalCardsWithDetails += card.getQty();
+                     int cmc = cardDetails.getCmc().intValue();
+                     averageCmc += card.getQty() * cardDetails.getCmc();
+                     manaCurve.put(cmc,manaCurve.getOrDefault(cmc,0) + card.getQty());
+                 }
+             }
+         }
+         if (totalCardsWithDetails > 0) {
+             averageCmc = averageCmc / totalCardsWithDetails;
+         }
+         response.setArtifacts(totalArtifacts);
+         response.setCreatures(totalCreatures);
+         response.setEnchantments(totalEnchantments);
+         response.setSorceries(totalSorceries);
+         response.setInstants(totalInstants);
+         response.setLands(totalLands);
+         response.setPlaneswalkers(totalPlaneswalkers);
+         response.setTotalCards(totalCards);
+         response.setAverageCmc(averageCmc);
+         response.setManaCurve(manaCurve);
         return response;
     }
 

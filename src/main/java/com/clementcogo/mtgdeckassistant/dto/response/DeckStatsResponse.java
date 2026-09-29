@@ -1,9 +1,9 @@
 package com.clementcogo.mtgdeckassistant.dto.response;
 
 import com.clementcogo.mtgdeckassistant.entities.Format;
-//TODO
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.Map;
 
 public class DeckStatsResponse {
     Long id;
@@ -20,9 +20,9 @@ public class DeckStatsResponse {
     int enchantments;
     int artifacts;
     int planeswalkers;
-    HashMap<Integer, Integer> manaCurve;
+    Map<Integer, Integer> manaCurve;
 
-    public DeckStatsResponse(Long id,String name,Instant createdAt,int totalCards,String commander) {
+    public DeckStatsResponse(Long id,String name,Instant createdAt,int totalCards,String commander,Format format) {
         this.id = id;
         this.name = name;
         this.createdAt = createdAt;
@@ -32,6 +32,7 @@ public class DeckStatsResponse {
         } else {
             this.commander = "";
         }
+        this.format = format;
     }
 
     public Long getId() {
@@ -146,11 +147,11 @@ public class DeckStatsResponse {
         this.planeswalkers = planeswalkers;
     }
 
-    public HashMap<Integer, Integer> getManaCurve() {
+    public Map<Integer, Integer> getManaCurve() {
         return manaCurve;
     }
 
-    public void setManaCurve(HashMap<Integer, Integer> manaCurve) {
+    public void setManaCurve(Map<Integer, Integer> manaCurve) {
         this.manaCurve = manaCurve;
     }
 }
