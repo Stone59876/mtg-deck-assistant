@@ -5,4 +5,3 @@ import com.clementcogo.mtgdeckassistant.integration.gemini.model.ScryfallQuerySu
 public interface GeminiService {
     ScryfallQuerySuggestions getSuggestions(String commanderName,String typeLine,String cmc,String colorIdentity,String oracleText,String prompt);
 }
-//TODO

@@ -75,10 +75,6 @@ public class ScryfallServiceImpl implements ScryfallService {
                 identifier.put("name",s.trim());
                 identifiers.add(identifier);
             });
-            System.out.println("identifiers :" + identifiers.toString());
-            System.out.println("cardNames = " + cardNames.size());
-            System.out.println("cardNames content = " + cardNames);
-            System.out.println("identifiers = " + identifiers.size());
             ScryfallCollectionRequest scryfallCollectionRequest = new ScryfallCollectionRequest(identifiers);
             ScryfallCardCollection batchResult = scryfallClient.getCardCollection(scryfallCollectionRequest);
             allCards.addAll(batchResult.getCollectionData());

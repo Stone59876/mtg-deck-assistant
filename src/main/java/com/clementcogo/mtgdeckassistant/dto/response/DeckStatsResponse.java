@@ -2,7 +2,7 @@ package com.clementcogo.mtgdeckassistant.dto.response;
 
 import com.clementcogo.mtgdeckassistant.entities.Format;
 import java.time.Instant;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DeckStatsResponse {
@@ -21,6 +21,7 @@ public class DeckStatsResponse {
     int artifacts;
     int planeswalkers;
     Map<Integer, Integer> manaCurve;
+    List<String> notFound;
 
     public DeckStatsResponse(Long id,String name,Instant createdAt,int totalCards,String commander,Format format) {
         this.id = id;
@@ -33,6 +34,14 @@ public class DeckStatsResponse {
             this.commander = "";
         }
         this.format = format;
+    }
+
+    public List<String> getNotFound() {
+        return notFound;
+    }
+
+    public void setNotFound(List<String> notFound) {
+        this.notFound = notFound;
     }
 
     public Long getId() {

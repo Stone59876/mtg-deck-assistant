@@ -10,5 +10,4 @@ public interface ScryfallService {
     CardPreviewResponse getCardPreviewByExactName(String name);
     SearchPageResponse searchScryfall(String query, String order,int limit,int page);
     ScryfallCardCollection getCardCollectionByNames(List<String> cardNames);
-//TODO
 }

@@ -1,14 +1,10 @@
 package com.clementcogo.mtgdeckassistant.integration.gemini;
 
-import com.clementcogo.mtgdeckassistant.entities.DeckSlot;
 import com.clementcogo.mtgdeckassistant.exception.GeminiException;
-import com.clementcogo.mtgdeckassistant.exception.NotFoundException;
-import com.clementcogo.mtgdeckassistant.integration.gemini.model.GeminiRawResponse;
 import com.clementcogo.mtgdeckassistant.integration.gemini.model.ScryfallQuerySuggestions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.genai.Client;
-import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -126,10 +122,6 @@ public class GeminiClient {
         } catch (JsonProcessingException e) {
             throw new GeminiException("Gemini returned invalid JSON :" + e.getMessage());
         }
-
-        // TODO A supprimer
-        //System.out.println("Résultat parsed :" + result.toString());
-
         return result;
     }
 }

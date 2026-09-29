@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 import java.util.Map;
-//TODO
+
 public class ScryfallCardCollection {
     @JsonProperty("not_found")
     List<Map<String, String>> notFound;

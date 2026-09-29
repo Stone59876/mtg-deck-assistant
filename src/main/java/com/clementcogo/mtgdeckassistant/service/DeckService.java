@@ -20,4 +20,3 @@ public interface DeckService {
     CommanderResponse getCommander(Long deckId);
     Deck getEntityByDeckId(Long deckId);
 }
-//TODO

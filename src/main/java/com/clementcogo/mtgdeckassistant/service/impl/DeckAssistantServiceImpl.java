@@ -73,13 +73,11 @@ public class DeckAssistantServiceImpl implements DeckAssistantService {
         for(CardPreviewResponse card:query.getCards()) {
             if(!existingCards.contains(card.getName().trim().toLowerCase())) {
                 newCards.add(card);
-            }else{
-                //System.out.println("DUPLICATE FOUND: " + card.getName() + " in QUERY :" + query.getTitle());
             }
         }
         query.setCards(newCards);
     }
-    //TODO
+
     @Override
     public DeckStatsResponse getDeckStats(Long deckId) {
         Deck deck = deckService.getEntityByDeckId(deckId);
@@ -91,8 +89,14 @@ public class DeckAssistantServiceImpl implements DeckAssistantService {
         List<String> cardNames = deck.getCardNames();
         ScryfallCardCollection result = scryfallService.getCardCollectionByNames(cardNames);
         Map<String, ScryfallCardRaw> cardsByName = new HashMap<>();
+        List<String> notFound = new ArrayList<>();
          for (ScryfallCardRaw scryfallCardRaw: result.getCollectionData()) {
              cardsByName.put(scryfallCardRaw.getName().trim().toLowerCase(),scryfallCardRaw);
+         }
+         if (result.getNotFound() != null) {
+             for (Map<String,String> failed:result.getNotFound()) {
+                 notFound.add(failed.get("name"));
+             }
          }
          int totalArtifacts = 0;
          int totalSorceries = 0;
@@ -103,8 +107,9 @@ public class DeckAssistantServiceImpl implements DeckAssistantService {
          int totalEnchantments = 0;
          int totalCards = 0;
          double averageCmc = 0;
+         double weightedCmcSum = 0;
          int totalCardsWithDetails = 0;
-         HashMap<Integer,Integer> manaCurve = new HashMap<>();
+         Map<Integer,Integer> manaCurve = new HashMap<>();
          for(DeckSlot card:deck.getSlots()){
              totalCards += card.getQty();
              ScryfallCardRaw cardDetails = cardsByName.get(card.getCardName().trim().toLowerCase());
@@ -134,13 +139,13 @@ public class DeckAssistantServiceImpl implements DeckAssistantService {
                  else {
                      totalCardsWithDetails += card.getQty();
                      int cmc = cardDetails.getCmc().intValue();
-                     averageCmc += card.getQty() * cardDetails.getCmc();
+                     weightedCmcSum += card.getQty() * cardDetails.getCmc();
                      manaCurve.put(cmc,manaCurve.getOrDefault(cmc,0) + card.getQty());
                  }
              }
          }
          if (totalCardsWithDetails > 0) {
-             averageCmc = averageCmc / totalCardsWithDetails;
+             averageCmc = weightedCmcSum / totalCardsWithDetails;
          }
          response.setArtifacts(totalArtifacts);
          response.setCreatures(totalCreatures);
@@ -152,6 +157,7 @@ public class DeckAssistantServiceImpl implements DeckAssistantService {
          response.setTotalCards(totalCards);
          response.setAverageCmc(averageCmc);
          response.setManaCurve(manaCurve);
+         response.setNotFound(notFound);
         return response;
     }
 

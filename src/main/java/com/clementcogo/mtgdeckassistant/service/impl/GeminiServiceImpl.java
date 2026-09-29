@@ -31,9 +31,6 @@ public GeminiServiceImpl(GeminiClient geminiClient){
                     validateRawScryfallQuery(query);
                 }
             }
-
-            System.out.println("Apres check :" + suggestions);
-
         return suggestions;
     }
 
@@ -47,7 +44,7 @@ public GeminiServiceImpl(GeminiClient geminiClient){
         }
         if (q.startsWith("http") || q.contains("http") || q.contains("scryfall") || q.contains("www")) {
             throw new GeminiException("rawQuery must be Scryfall DSL, not a URL, was :" + q);
-        } else if (!q.contains("o:") && !q.contains("t:") && !q.contains("ci:") && !q.contains("is:") && !q.contains("mv") && !q.contains("cmc") && !q.contains("pow") && !q.contains("id")) {
+        } else if (!q.contains("o:") && !q.contains("t:") && !q.contains("ci:") && !q.contains("is:") && !q.contains("mv:") && !q.contains("cmc:") && !q.contains("pow:") && !q.contains("id:")) {
             throw new GeminiException("Suggestion returned query with too little filter (no oracle or type or color identity or mana value or cumulative mana cost or power  , got :" + q);
         } else if (query.getReason() == null || query.getReason().isBlank()) {
             throw new GeminiException("Suggestion returned query with empty reason");
