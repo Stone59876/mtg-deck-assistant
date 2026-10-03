@@ -2,12 +2,14 @@ package com.clementcogo.mtgdeckassistant.service.impl;
 
 import com.clementcogo.mtgdeckassistant.dto.request.AddCardRequest;
 import com.clementcogo.mtgdeckassistant.dto.request.CreateDeckRequest;
+import com.clementcogo.mtgdeckassistant.dto.request.UpdateCardRequest;
 import com.clementcogo.mtgdeckassistant.dto.response.*;
 import com.clementcogo.mtgdeckassistant.entities.Deck;
 import com.clementcogo.mtgdeckassistant.entities.DeckSlot;
 import com.clementcogo.mtgdeckassistant.entities.Format;
 import com.clementcogo.mtgdeckassistant.exception.ConflictException;
 import com.clementcogo.mtgdeckassistant.exception.NotFoundException;
+import com.clementcogo.mtgdeckassistant.exception.BadRequestException;
 import com.clementcogo.mtgdeckassistant.repository.DeckRepository;
 import com.clementcogo.mtgdeckassistant.repository.DeckSlotRepository;
 import com.clementcogo.mtgdeckassistant.service.DeckService;
@@ -80,25 +82,27 @@ public class DeckServiceImpl implements DeckService {
         return response;
     }
 
-    private boolean upsertCard(Deck deck, String cardName, int qty,boolean mergeDuplicates) throws IllegalArgumentException {
+    private boolean upsertCard(Deck deck, String cardName, int qty,boolean mergeDuplicates) {
         cardName = cardName.trim();
         boolean alreadyExist;
-        if (qty <= 0) {
-            throw new IllegalArgumentException("Quantité <= 0");
-        } else if (cardName.isBlank()) {
+        if (cardName.isBlank()) {
             throw new IllegalArgumentException("Nom de carte vide");
         }
         Optional<DeckSlot> deckSlot = deckSlotRepository.findByDeckIdAndCardName(deck.getId(), cardName);
         if (deckSlot.isPresent()) {
             // carte existante
             alreadyExist = true;
+            DeckSlot slot = deckSlot.get();
             if (mergeDuplicates) {
                 //on augmente la quantité car on merge
-                deckSlot.get().setQty(deckSlot.get().getQty() + qty);
+                int newQty = slot.getQty() + qty;
+                validateCardQuantity(deck,slot,newQty);
+                slot.setQty(newQty);
             }
         } else {
             // nouvelle carte a ajouter
             DeckSlot newCard = new DeckSlot(cardName, qty);
+            validateCardQuantity(deck,newCard,qty);
             deck.addSlot(newCard);
             alreadyExist = false;
         }
@@ -163,7 +167,7 @@ public class DeckServiceImpl implements DeckService {
         int totalQty = 0;
         for(DeckSlot deckSlot: slots) {
             totalQty = totalQty + deckSlot.getQty();
-            if(deckSlot.getQty() > 1 && !BASIC_LANDS.contains(deckSlot.getCardName().trim().toLowerCase()) ){
+            if(deckSlot.getQty() > 1 && !isBasicLand(deckSlot) ){
               response.addDuplicateCard(deckSlot);
             }
         }
@@ -245,6 +249,80 @@ public class DeckServiceImpl implements DeckService {
     public Deck getEntityByDeckId(Long deckId) {
         return deckRepository.findById(deckId)
                 .orElseThrow(() -> new NotFoundException("Deck not found with id " + deckId));
+    }
+
+    @Override
+    public DeleteCardResponse deleteCardFromDeck(Long id, Long slotId){
+        Deck deck = getEntityByDeckId(id);
+        Iterator<DeckSlot> iterator = deck.getSlots().iterator();
+        DeckSlot commander = deck.getCommander();
+        boolean found = false;
+        String name = "";
+        while(iterator.hasNext()) {
+            DeckSlot slot = iterator.next();
+            if(slot.getId().equals(slotId)){
+                if(slot.equals(commander)) {
+                    deck.setCommander(null);
+                }
+                slot.setDeck(null);
+                name = slot.getCardName();
+                iterator.remove();
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            throw new NotFoundException(
+                    "Slot was not found in deck: " + deck.getName()
+                            + " with id: " + id
+                            + " and deckslot id: " + slotId
+            );
+        }
+        List<SlotResponse> remainingCards = getCards(id);
+        return new DeleteCardResponse(id,slotId,name,remainingCards);
+    }
+
+    private boolean isBasicLand(DeckSlot slot){
+        return BASIC_LANDS.contains(slot.getCardName().trim().toLowerCase());
+    }
+
+    private void validateCardQuantity(Deck deck,DeckSlot slot,int qty){
+        if(qty <= 0){
+            throw new BadRequestException("Quantity should be above 0 but is : " + qty);
+        }
+        if(deck.getFormat().equals(Format.COMMANDER) && qty > 1){
+            if(Objects.equals(deck.getCommander(),slot)) {
+                throw new IllegalArgumentException("Commander can only be a single card in the deck for : " + slot.getCardName());
+            }
+            if(!isBasicLand(slot)){
+                    throw new IllegalArgumentException("Commander decks can only contains single version of each non basic lands for : " + slot.getCardName());
+            }
+        }
+    }
+
+    @Override
+    public SlotResponse updateCardFromDeck(Long id, Long slotId, UpdateCardRequest request){
+        Deck deck = getEntityByDeckId(id);
+        List<DeckSlot> deckSlots = deck.getSlots();
+        boolean found = false;
+        String name = "";
+        for(DeckSlot slot : deckSlots) {
+            if(slot.getId().equals(slotId)) {
+                found = true;
+                name = slot.getCardName();
+                validateCardQuantity(deck, slot, request.getQty());
+                slot.setQty(request.getQty());
+                break;
+            }
+        }
+        if (!found) {
+            throw new NotFoundException(
+                    "Slot was not found in deck: " + deck.getName()
+                            + " with id: " + id
+                            + " and deckslot id: " + slotId
+            );
+        }
+        return new SlotResponse(slotId,name, request.getQty());
     }
 
 }

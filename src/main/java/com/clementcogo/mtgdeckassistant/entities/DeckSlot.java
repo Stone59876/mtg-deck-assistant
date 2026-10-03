@@ -41,7 +41,7 @@ public class DeckSlot {
     public String getCardName() { return cardName; }
     public int getQty() { return qty; }
 
-    void setDeck(Deck deck) { this.deck = deck; } // package-private ou public si besoin
+    public void setDeck(Deck deck) { this.deck = deck; } // package-private ou public si besoin
     public void setCardName(String cardName) { this.cardName = cardName; }
     public void setQty(int qty) { this.qty = qty; }
 

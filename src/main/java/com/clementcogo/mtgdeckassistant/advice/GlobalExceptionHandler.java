@@ -1,9 +1,6 @@
 package com.clementcogo.mtgdeckassistant.advice;
 
-import com.clementcogo.mtgdeckassistant.exception.ConflictException;
-import com.clementcogo.mtgdeckassistant.exception.GeminiException;
-import com.clementcogo.mtgdeckassistant.exception.NotFoundException;
-import com.clementcogo.mtgdeckassistant.exception.RateLimitException;
+import com.clementcogo.mtgdeckassistant.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -66,6 +63,13 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_GATEWAY)
     @ExceptionHandler(GeminiException.class)
     public Map<String, String> handleGeminiException(GeminiException ex) {
+        return Map.of("error","Request failed",
+                "message", ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(BadRequestException.class)
+    public Map<String, String> handleBadRequestException(BadRequestException ex) {
         return Map.of("error","Request failed",
                 "message", ex.getMessage());
     }

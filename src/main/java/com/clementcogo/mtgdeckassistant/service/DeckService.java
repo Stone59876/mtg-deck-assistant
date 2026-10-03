@@ -2,6 +2,7 @@ package com.clementcogo.mtgdeckassistant.service;
 
 import com.clementcogo.mtgdeckassistant.dto.request.AddCardRequest;
 import com.clementcogo.mtgdeckassistant.dto.request.CreateDeckRequest;
+import com.clementcogo.mtgdeckassistant.dto.request.UpdateCardRequest;
 import com.clementcogo.mtgdeckassistant.dto.response.*;
 import com.clementcogo.mtgdeckassistant.entities.Deck;
 
@@ -19,4 +20,6 @@ public interface DeckService {
     SetCommanderResponse setCommander(Long deckId, String commander);
     CommanderResponse getCommander(Long deckId);
     Deck getEntityByDeckId(Long deckId);
+    DeleteCardResponse deleteCardFromDeck(Long id, Long slotId);
+    SlotResponse updateCardFromDeck(Long id, Long slotId, UpdateCardRequest request);
 }

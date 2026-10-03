@@ -82,4 +82,16 @@
         @GetMapping("/{id}/stats")
         public DeckStatsResponse getDeckStats(@PathVariable Long id) { return deckAssistantService.getDeckStats(id);}
 
+        @DeleteMapping("/{id}/cards/{slotId}")
+        @ResponseStatus(HttpStatus.OK)
+        public DeleteCardResponse deleteCardFromDeck(@PathVariable Long id,@PathVariable Long slotId){
+            return deckService.deleteCardFromDeck(id,slotId);
+        }
+
+        @PatchMapping("/{id}/cards/{slotId}")
+        @ResponseStatus(HttpStatus.OK)
+        public SlotResponse updateCardFromDeck(@PathVariable Long id,@PathVariable Long slotId,@Valid @RequestBody UpdateCardRequest request){
+            return deckService.updateCardFromDeck(id,slotId,request);
+        }
+
     }
