@@ -5,9 +5,9 @@ import java.util.List;
 
 /**
  * Réponse globale renvoyée par l’endpoint /decks/{id}/suggestions.
- *
+ * <p>
  * Objectif : fournir au front tout ce qu’il faut pour afficher un écran “Suggestions”.
- *
+ * <p>
  * Contenu :
  * - deckId      : deck ciblé
  * - commander   : nom du commandant utilisé pour générer les suggestions
@@ -21,7 +21,7 @@ public class DeckSuggestionResponse {
     List<AssistantSuggestionResponse> queries;
     Instant generatedAt;
 
-    public DeckSuggestionResponse(Long deckId,String commander,List<AssistantSuggestionResponse> queries) {
+    public DeckSuggestionResponse(Long deckId, String commander, List<AssistantSuggestionResponse> queries) {
         this.deckId = deckId;
         this.commander = commander;
         this.queries = queries;

@@ -1,11 +1,8 @@
 package com.clementcogo.mtgdeckassistant.dto.response;
 
-import com.clementcogo.mtgdeckassistant.entities.Deck;
-import com.clementcogo.mtgdeckassistant.entities.DeckSlot;
-import com.clementcogo.mtgdeckassistant.entities.Format;
+import com.clementcogo.mtgdeckassistant.enumeration.Format;
 
 import java.time.Instant;
-import java.util.List;
 
 public class DeckResponse {
     Long id;
@@ -15,7 +12,7 @@ public class DeckResponse {
     String commander;
     Instant lastUpdated;
 
-    public DeckResponse(Long id, String name, Format format, Instant createdAt,Instant lastUpdated) {
+    public DeckResponse(Long id, String name, Format format, Instant createdAt, Instant lastUpdated) {
         this.id = id;
         this.name = name;
         this.format = format;
@@ -23,7 +20,7 @@ public class DeckResponse {
         this.lastUpdated = lastUpdated;
     }
 
-    public DeckResponse(Long id, String name, Format format, Instant createdAt,String commander,Instant lastUpdated) {
+    public DeckResponse(Long id, String name, Format format, Instant createdAt, String commander, Instant lastUpdated) {
         this.id = id;
         this.name = name;
         this.format = format;
@@ -76,6 +73,8 @@ public class DeckResponse {
         this.lastUpdated = lastUpdated;
     }
 
-    public Instant getLastUpdated() { return lastUpdated;}
+    public Instant getLastUpdated() {
+        return lastUpdated;
+    }
 
 }

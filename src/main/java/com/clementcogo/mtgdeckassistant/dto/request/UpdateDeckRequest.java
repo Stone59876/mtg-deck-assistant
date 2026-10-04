@@ -1,6 +1,6 @@
 package com.clementcogo.mtgdeckassistant.dto.request;
 
-import com.clementcogo.mtgdeckassistant.entities.Format;
+import com.clementcogo.mtgdeckassistant.enumeration.Format;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 

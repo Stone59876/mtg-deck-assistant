@@ -1,39 +1,26 @@
 package com.clementcogo.mtgdeckassistant.dto.request;
 
-import com.clementcogo.mtgdeckassistant.entities.DeckSlot;
-import com.clementcogo.mtgdeckassistant.entities.Format;
+import com.clementcogo.mtgdeckassistant.enumeration.Format;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-import java.util.List;
-
+@AllArgsConstructor
+@NoArgsConstructor
 public class CreateDeckRequest {
     @NotBlank
-    String name;
+    @Size(max = 100)
+    private String name;
     @NotNull
-    Format format;
-
-    public CreateDeckRequest(String name, Format format) {
-        this.name = name;
-        this.format = format;
-    }
-
-    public CreateDeckRequest() {}
+    private Format format;
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Format getFormat() {
         return format;
-    }
-
-    public void setFormat(Format format) {
-        this.format = format;
     }
 }

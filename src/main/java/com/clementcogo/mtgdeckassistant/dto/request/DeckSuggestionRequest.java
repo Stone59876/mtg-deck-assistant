@@ -6,30 +6,33 @@ import jakarta.validation.constraints.Size;
 
 /**
  * Paramètres de la demande de suggestions pour un deck.
- *
+ * <p>
  * Ce DTO représente ce que le client (front/Postman) peut contrôler :
  * - limit : nombre de cartes max à afficher par requête Scryfall (1..100).
  * - lang  : langue souhaitée (ex: "EN", "FR") -> à utiliser plus tard (Scryfall supporte le multi-langue via d’autres endpoints/params).
  * - order : tri Scryfall (ex: "edhrec") pour prioriser des cartes populaires en EDH.
- *
+ * <p>
  * Remarque :
  * - Les valeurs par défaut sont définies directement dans les champs.
  * - Les @Min/@Max sécurisent l’API côté validation.
  */
 
 public class DeckSuggestionRequest {
-    @Max(100) @Min(1)
-    int limit= 5;
+    @Max(100)
+    @Min(1)
+    int limit = 5;
     String lang = "EN"; //Unused TODO
     String order = "edhrec";
-    @Max(10) @Min(1)
-    int page=1;
+    @Max(10)
+    @Min(1)
+    int page = 1;
     @Size(max = 1000)
     String prompt;
-    @Max(100) @Min(0)
+    @Max(100)
+    @Min(0)
     int duplicateBuffer = 50;
 
-    public DeckSuggestionRequest(int limit, String lang, String order,int page,String prompt,int duplicateBuffer) {
+    public DeckSuggestionRequest(int limit, String lang, String order, int page, String prompt, int duplicateBuffer) {
         this.limit = limit;
         this.lang = lang;
         this.order = order;
@@ -38,7 +41,8 @@ public class DeckSuggestionRequest {
         this.duplicateBuffer = duplicateBuffer;
     }
 
-    public DeckSuggestionRequest() {}
+    public DeckSuggestionRequest() {
+    }
 
     public int getLimit() {
         return limit;
@@ -77,7 +81,7 @@ public class DeckSuggestionRequest {
     }
 
     public void setPrompt(String prompt) {
-        if(prompt != null && !prompt.trim().isEmpty()) {
+        if (prompt != null && !prompt.trim().isEmpty()) {
             this.prompt = prompt.trim();
         } else {
             this.prompt = "Aucune préférence";

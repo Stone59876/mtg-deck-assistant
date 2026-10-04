@@ -1,4 +1,4 @@
-package com.clementcogo.mtgdeckassistant.entities;
+package com.clementcogo.mtgdeckassistant.enumeration;
 
 public enum Format {
     COMMANDER,

@@ -21,18 +21,18 @@ public class ScryfallController {
     }
 
     @GetMapping("/named")
-    public CardPreviewResponse getByExactCardName(@RequestParam String name){
+    public CardPreviewResponse getByExactCardName(@RequestParam String name) {
         return scryfallService.getCardPreviewByExactName(name);
     }
 
     @GetMapping("/search")
-    public SearchPageResponse searchScryfall(@RequestParam String query, @RequestParam String order,@RequestParam int limit,@RequestParam int page) {
-        return scryfallService.searchScryfall(query,order,limit,page);
+    public SearchPageResponse searchScryfall(@RequestParam String query, @RequestParam String order, @RequestParam int limit, @RequestParam int page) {
+        return scryfallService.searchScryfall(query, order, limit, page);
     }
 
     @PostMapping("/collection")
     @ResponseStatus(HttpStatus.OK)
-    public ScryfallCardCollection getCollection(@Valid @RequestBody List<String> request){
+    public ScryfallCardCollection getCollection(@Valid @RequestBody List<String> request) {
         return scryfallService.getCardCollectionByNames(request);
     }
 

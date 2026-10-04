@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-
 import java.util.Map;
 
 @RestControllerAdvice
@@ -16,7 +15,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException.class)
     public Map<String, String> handleNotFoundException(NotFoundException ex) {
-        return Map.of("error","Not Found",
+        return Map.of("error", "Not Found",
                 "message", ex.getMessage());
     }
 
@@ -49,28 +48,28 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(ConflictException.class)
     public Map<String, String> handleConflictException(ConflictException ex) {
-        return Map.of("error","Conflict",
+        return Map.of("error", "Conflict",
                 "message", ex.getMessage());
     }
 
     @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
     @ExceptionHandler(RateLimitException.class)
     public Map<String, String> handleRateLimitException(RateLimitException ex) {
-        return Map.of("error","Too Many Requests",
+        return Map.of("error", "Too Many Requests",
                 "message", ex.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_GATEWAY)
     @ExceptionHandler(GeminiException.class)
     public Map<String, String> handleGeminiException(GeminiException ex) {
-        return Map.of("error","Request failed",
+        return Map.of("error", "Request failed",
                 "message", ex.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(BadRequestException.class)
     public Map<String, String> handleBadRequestException(BadRequestException ex) {
-        return Map.of("error","Request failed",
+        return Map.of("error", "Bad Request",
                 "message", ex.getMessage());
     }
 

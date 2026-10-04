@@ -1,10 +1,11 @@
 package com.clementcogo.mtgdeckassistant.entities;
 
+import com.clementcogo.mtgdeckassistant.enumeration.Format;
 import jakarta.persistence.*;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "decks")
@@ -69,18 +70,40 @@ public class Deck {
     }
 
     public void setCommander(DeckSlot commander) {
-        this.commander = commander; setUpdatedAt();
+        this.commander = commander;
+        setUpdatedAt();
     }
 
     // Getters (et setters si tu veux, mais limite-les)
-    public Long getId() { return id; }
-    public String getName() { return name; }
-    public Format getFormat() { return format; }
-    public Instant getCreatedAt() { return createdAt; }
-    public List<DeckSlot> getSlots() { return slots; }
+    public Long getId() {
+        return id;
+    }
 
-    public void setName(String name) { this.name = name; setUpdatedAt(); }
-    public void setFormat(Format format) { this.format = format; setUpdatedAt(); }
+    public String getName() {
+        return name;
+    }
+
+    public Format getFormat() {
+        return format;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public List<DeckSlot> getSlots() {
+        return slots;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        setUpdatedAt();
+    }
+
+    public void setFormat(Format format) {
+        this.format = format;
+        setUpdatedAt();
+    }
 
     public DeckSlot getCommander() {
         return commander;

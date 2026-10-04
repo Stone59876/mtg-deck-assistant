@@ -1,7 +1,6 @@
 package com.clementcogo.mtgdeckassistant.dto.response;
 
-import com.clementcogo.mtgdeckassistant.entities.DeckSlot;
-import com.clementcogo.mtgdeckassistant.entities.Format;
+import com.clementcogo.mtgdeckassistant.enumeration.Format;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,7 @@ public class DeckValidationResponse {
     int totalCards;
     boolean valid;
     List<String> issues;
-    List<DeckSlot> duplicateCards;
+    List<SlotResponse> duplicateCards;
 
     public DeckValidationResponse(Long deckId) {
         this.deckId = deckId;
@@ -60,19 +59,19 @@ public class DeckValidationResponse {
         this.issues = issues;
     }
 
-    public void addIssue(String issue){
+    public void addIssue(String issue) {
         this.issues.add(issue);
     }
 
-    public List<DeckSlot> getDuplicateCards() {
+    public List<SlotResponse> getDuplicateCards() {
         return duplicateCards;
     }
 
-    public void addDuplicateCard(DeckSlot duplicate){
+    public void addDuplicateCard(SlotResponse duplicate) {
         this.duplicateCards.add(duplicate);
     }
 
-    public void setDuplicateCards(List<DeckSlot> duplicateCards) {
+    public void setDuplicateCards(List<SlotResponse> duplicateCards) {
         this.duplicateCards = duplicateCards;
     }
 }

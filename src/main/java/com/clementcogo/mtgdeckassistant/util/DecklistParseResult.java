@@ -10,7 +10,7 @@ public class DecklistParseResult {
     private int ignoredLines;
     private int invalidLines;
 
-    public DecklistParseResult(){
+    public DecklistParseResult() {
         this.slots = new ArrayList<>();
         this.ignoredLines = 0;
         this.invalidLines = 0;
@@ -20,7 +20,7 @@ public class DecklistParseResult {
         return slots;
     }
 
-    public void addSlot(DeckSlot deckslot){
+    public void addSlot(DeckSlot deckslot) {
         this.slots.add(deckslot);
     }
 
@@ -28,7 +28,7 @@ public class DecklistParseResult {
         return ignoredLines;
     }
 
-    public void incrementIgnoredLines(){
+    public void incrementIgnoredLines() {
         ignoredLines++;
     }
 
@@ -36,7 +36,7 @@ public class DecklistParseResult {
         return invalidLines;
     }
 
-    public void incrementInvalidLines(){
+    public void incrementInvalidLines() {
         invalidLines++;
     }
 }

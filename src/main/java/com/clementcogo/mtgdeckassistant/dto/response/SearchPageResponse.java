@@ -12,7 +12,7 @@ public class SearchPageResponse {
     public SearchPageResponse() {
     }
 
-    public SearchPageResponse(int totalCards,String nextPage,boolean hasMore) {
+    public SearchPageResponse(int totalCards, String nextPage, boolean hasMore) {
         this.totalCards = totalCards;
         this.hasMore = hasMore;
         this.nextPage = nextPage;

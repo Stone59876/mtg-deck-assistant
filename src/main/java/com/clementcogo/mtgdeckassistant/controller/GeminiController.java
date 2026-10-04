@@ -1,12 +1,9 @@
 package com.clementcogo.mtgdeckassistant.controller;
 
-import com.clementcogo.mtgdeckassistant.dto.response.AssistantSuggestionResponse;
-import com.clementcogo.mtgdeckassistant.integration.gemini.model.ScryfallQuerySuggestions;
 import com.clementcogo.mtgdeckassistant.service.DeckService;
 import com.clementcogo.mtgdeckassistant.service.GeminiService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/gemini")

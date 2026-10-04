@@ -1,6 +1,7 @@
 package com.clementcogo.mtgdeckassistant.dto.response;
 
-import com.clementcogo.mtgdeckassistant.entities.Format;
+import com.clementcogo.mtgdeckassistant.enumeration.Format;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -11,24 +12,24 @@ public class DeckStatsResponse {
     Format format;
     Instant createdAt;
     String commander;
-    int totalCards;
-    double averageCmc;
-    int lands;
-    int sorceries;
-    int instants;
-    int creatures;
-    int enchantments;
-    int artifacts;
-    int planeswalkers;
+    int totalCards = 0;
+    double averageCmc = 0;
+    int lands = 0;
+    int sorceries = 0;
+    int instants = 0;
+    int creatures = 0;
+    int enchantments = 0;
+    int artifacts = 0;
+    int planeswalkers = 0;
     Map<Integer, Integer> manaCurve;
     List<String> notFound;
 
-    public DeckStatsResponse(Long id,String name,Instant createdAt,int totalCards,String commander,Format format) {
+    public DeckStatsResponse(Long id, String name, Instant createdAt, int totalCards, String commander, Format format) {
         this.id = id;
         this.name = name;
         this.createdAt = createdAt;
         this.totalCards = totalCards;
-        if(commander != null) {
+        if (commander != null) {
             this.commander = commander;
         } else {
             this.commander = "";

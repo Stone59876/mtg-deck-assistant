@@ -5,15 +5,15 @@ import com.clementcogo.mtgdeckassistant.dto.response.DeckStatsResponse;
 import com.clementcogo.mtgdeckassistant.dto.response.DeckSuggestionResponse;
 
 /**
- *Orchestrateur du projet
- *
+ * Orchestrateur du projet
+ * <p>
  * Rôle:
  * - Récupérer le deck (et surtout le commandant) via la couche DeckService/Repository.
  * - Construire le contexte (nom/texte du commandant, options utilisateur).
  * - Appeler Gemini pour obtenir un plan de requêtes Scryfall (JSON structuré).
  * - Exécuter ces requêtes sur Scryfall (limité à N cartes) pour enrichir la réponse.
  * - Retourner une réponse prête pour le front (suggestions + preview de cartes).
- *
+ * <p>
  * Important :
  * - Ce service ne contient pas la logique HTTP (controller) ni la logique d’accès Scryfall/Gemini “bas niveau”.
  * - Il coordonne les dépendances (DeckService, ScryfallService, GeminiClient, etc.).
@@ -22,5 +22,6 @@ import com.clementcogo.mtgdeckassistant.dto.response.DeckSuggestionResponse;
 
 public interface DeckAssistantService {
     DeckSuggestionResponse getSuggestion(Long id, DeckSuggestionRequest request);
+
     DeckStatsResponse getDeckStats(Long deckId);
 }

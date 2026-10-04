@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface DeckSlotRepository extends JpaRepository<DeckSlot, Long> {
-    public Optional<DeckSlot> findByDeckIdAndCardName(Long deckId,String cardName);
+    public Optional<DeckSlot> findByDeckIdAndCardName(Long deckId, String cardName);
 }

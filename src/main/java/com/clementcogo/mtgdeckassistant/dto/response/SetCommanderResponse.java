@@ -5,7 +5,7 @@ public class SetCommanderResponse {
     boolean valid;
     String cardName;
 
-    public SetCommanderResponse(Long deckId,String cardName) {
+    public SetCommanderResponse(Long deckId, String cardName) {
         this.deckId = deckId;
         this.cardName = cardName;
         this.valid = false;

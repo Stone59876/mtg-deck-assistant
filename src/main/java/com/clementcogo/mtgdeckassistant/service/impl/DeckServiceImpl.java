@@ -7,37 +7,36 @@ import com.clementcogo.mtgdeckassistant.dto.request.UpdateDeckRequest;
 import com.clementcogo.mtgdeckassistant.dto.response.*;
 import com.clementcogo.mtgdeckassistant.entities.Deck;
 import com.clementcogo.mtgdeckassistant.entities.DeckSlot;
-import com.clementcogo.mtgdeckassistant.entities.Format;
+import com.clementcogo.mtgdeckassistant.enumeration.Format;
+import com.clementcogo.mtgdeckassistant.exception.BadRequestException;
 import com.clementcogo.mtgdeckassistant.exception.ConflictException;
 import com.clementcogo.mtgdeckassistant.exception.NotFoundException;
-import com.clementcogo.mtgdeckassistant.exception.BadRequestException;
 import com.clementcogo.mtgdeckassistant.repository.DeckRepository;
 import com.clementcogo.mtgdeckassistant.repository.DeckSlotRepository;
 import com.clementcogo.mtgdeckassistant.service.DeckService;
 import com.clementcogo.mtgdeckassistant.util.DecklistParseResult;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class DeckServiceImpl implements DeckService {
 
-    @Autowired
-    private DeckRepository deckRepository;
+    private final DeckRepository deckRepository;
 
-    @Autowired
-    private DeckSlotRepository deckSlotRepository;
+    private final DeckSlotRepository deckSlotRepository;
 
-    private static final Set<String> BASIC_LANDS = Set.of("plains","island","swamp","mountain","forest","wastes");
+    private static final Set<String> BASIC_LANDS = Set.of("plains", "island", "swamp", "mountain", "forest", "wastes");
 
     @Override
     public DeckResponse create(CreateDeckRequest request) {
         Deck deck = new Deck(request.getName(), request.getFormat());
         Deck saved = deckRepository.save(deck);
-        return new DeckResponse(saved.getId(), saved.getName(), saved.getFormat(), saved.getCreatedAt(),saved.getUpdatedAt());
+        return new DeckResponse(saved.getId(), saved.getName(), saved.getFormat(), saved.getCreatedAt(), saved.getUpdatedAt());
     }
 
     @Override
@@ -51,8 +50,8 @@ public class DeckServiceImpl implements DeckService {
         Deck deck = getEntityByDeckId(id);
         String cardName = request.getCardName().trim();
         boolean mergeDuplicates = !deck.getFormat().equals(Format.COMMANDER);
-        boolean alreadyExist = upsertCard(deck, cardName, request.getQty(),mergeDuplicates);
-        if(!mergeDuplicates && alreadyExist){
+        boolean alreadyExist = upsertCard(deck, cardName, request.getQty(), mergeDuplicates);
+        if (!mergeDuplicates && alreadyExist) {
             throw new ConflictException("Impossible d'ajouter cette carte car elle existe déjà dans le deck Commander, la carte est : " + cardName);
         }
         Deck saved = deckRepository.save(deck);
@@ -60,7 +59,7 @@ public class DeckServiceImpl implements DeckService {
     }
 
     @Override
-    public ImportResultResponse importDeckList(Long id, String decklist,boolean mergeDuplicates) {
+    public ImportResultResponse importDeckList(Long id, String decklist, boolean mergeDuplicates) {
         Deck deck = getEntityByDeckId(id);
         DecklistParseResult parseResult = parseDeckList(decklist);
         ImportResultResponse response = new ImportResultResponse(id, parseResult.getIgnoredLines(), parseResult.getInvalidLines());
@@ -69,21 +68,20 @@ public class DeckServiceImpl implements DeckService {
             if (alreadyExist) {
                 if (mergeDuplicates) {
                     response.incrementUpdatedSlots();
-                }
-                else
-                {
+                } else {
                     response.incrementDuplicateLines();
                 }
             } else {
                 response.incrementAddedSlots();
             }
 
-        };
+        }
+
         deckRepository.save(deck);
         return response;
     }
 
-    private boolean upsertCard(Deck deck, String cardName, int qty,boolean mergeDuplicates) {
+    private boolean upsertCard(Deck deck, String cardName, int qty, boolean mergeDuplicates) {
         cardName = cardName.trim();
         boolean alreadyExist;
         if (cardName.isBlank()) {
@@ -97,14 +95,14 @@ public class DeckServiceImpl implements DeckService {
             if (mergeDuplicates) {
                 //on augmente la quantité car on merge
                 int newQty = slot.getQty() + qty;
-                validateCardQuantity(deck,slot,newQty);
+                validateCardQuantity(deck, slot, newQty);
                 slot.setQty(newQty);
                 deck.setUpdatedAt();
             }
         } else {
             // nouvelle carte a ajouter
             DeckSlot newCard = new DeckSlot(cardName, qty);
-            validateCardQuantity(deck,newCard,qty);
+            validateCardQuantity(deck, newCard, qty);
             deck.addSlot(newCard);
             alreadyExist = false;
         }
@@ -167,32 +165,31 @@ public class DeckServiceImpl implements DeckService {
         int maxSizeLimit = 75;
         int minSizeLimit = 60;
         int totalQty = 0;
-        for(DeckSlot deckSlot: slots) {
+        for (DeckSlot deckSlot : slots) {
             totalQty = totalQty + deckSlot.getQty();
-            if(deckSlot.getQty() > 1 && !isBasicLand(deckSlot) ){
-              response.addDuplicateCard(deckSlot);
+            if (deckSlot.getQty() > 1 && !isBasicLand(deckSlot)) {
+                response.addDuplicateCard(new SlotResponse(deckSlot.getId(), deckSlot.getCardName(), deckSlot.getQty()));
             }
         }
         response.setTotalCards(totalQty);
         boolean uniqueCards = false;
-        if(deck.getFormat().equals(Format.COMMANDER)) {
-                minSizeLimit = 100;
-                maxSizeLimit = 100;
-                uniqueCards = true;
-                if(deck.getCommander() == null){
-                    response.setValid(false);
-                    response.addIssue("Commander deck with no commander");
-                }else if(!deck.getCommander().getDeck().equals(deck)) {
-                    response.setValid(false);
-                    response.addIssue("Commander is in the wrong deck , should be " + deck.getId() + " but it is in " + deck.getCommander().getDeck().getId());
-                }
+        if (deck.getFormat().equals(Format.COMMANDER)) {
+            minSizeLimit = 100;
+            maxSizeLimit = 100;
+            uniqueCards = true;
+            if (deck.getCommander() == null) {
+                response.setValid(false);
+                response.addIssue("Commander deck with no commander");
+            } else if (!deck.getCommander().getDeck().equals(deck)) {
+                response.setValid(false);
+                response.addIssue("Commander is in the wrong deck , should be " + deck.getId() + " but it is in " + deck.getCommander().getDeck().getId());
+            }
         }
-        if(totalQty > maxSizeLimit || totalQty < minSizeLimit)
-        {
+        if (totalQty > maxSizeLimit || totalQty < minSizeLimit) {
             response.addIssue("deck size is too large or too small , its " + totalQty + " but i should be between " + minSizeLimit + " and " + maxSizeLimit);
             response.setValid(false);
         }
-        if(!response.getDuplicateCards().isEmpty() && uniqueCards) {
+        if (!response.getDuplicateCards().isEmpty() && uniqueCards) {
             response.addIssue("there are duplicates of cards in the deck that are not basic lands and it is not allowed in this format");
             response.setValid(false);
         }
@@ -201,23 +198,21 @@ public class DeckServiceImpl implements DeckService {
     }
 
     @Override
-    public SetCommanderResponse setCommander(Long deckId,String commander) {
-        SetCommanderResponse response = new SetCommanderResponse(deckId,commander);
+    public SetCommanderResponse setCommander(Long deckId, String commander) {
+        SetCommanderResponse response = new SetCommanderResponse(deckId, commander);
         Deck deck = getEntityByDeckId(deckId);
-        if(!deck.getFormat().equals(Format.COMMANDER)) {
+        if (!deck.getFormat().equals(Format.COMMANDER)) {
             response.setValid(false);
             throw new IllegalArgumentException("This is not a commander deck");
-        }
-        else
-        {
+        } else {
             for (DeckSlot deckSlot : deck.getSlots()) {
-                if(deckSlot.getCardName().equalsIgnoreCase(commander) && deckSlot.getQty() == 1) {
+                if (deckSlot.getCardName().equalsIgnoreCase(commander) && deckSlot.getQty() == 1) {
                     deck.setCommander(deckSlot);
                     response.setValid(true);
                 }
             }
         }
-        if(!response.isValid()) {
+        if (!response.isValid()) {
             throw new IllegalArgumentException("Commander must be a single card present in the deck");
         }
         deckRepository.save(deck);
@@ -228,23 +223,21 @@ public class DeckServiceImpl implements DeckService {
     public CommanderResponse getCommander(Long deckId) {
         CommanderResponse response = new CommanderResponse(deckId);
         Deck deck = getEntityByDeckId(deckId);
-        if(!deck.getFormat().equals(Format.COMMANDER)) {
+        if (!deck.getFormat().equals(Format.COMMANDER)) {
             throw new IllegalArgumentException("This is not a commander deck");
-        }
-        else
-        {
-           if(deck.getCommander() != null){
-                response = new CommanderResponse(deckId,deck.getCommander().getCardName(),true);
-           }
+        } else {
+            if (deck.getCommander() != null) {
+                response = new CommanderResponse(deckId, deck.getCommander().getCardName(), true);
+            }
         }
         return response;
     }
 
     private DeckResponse toDeckResponse(Deck deck) {
-        if(deck.getCommander() != null) {
-            return new DeckResponse(deck.getId(), deck.getName(), deck.getFormat(), deck.getCreatedAt(),deck.getCommander().getCardName(),deck.getUpdatedAt());
+        if (deck.getCommander() != null) {
+            return new DeckResponse(deck.getId(), deck.getName(), deck.getFormat(), deck.getCreatedAt(), deck.getCommander().getCardName(), deck.getUpdatedAt());
         }
-        return new DeckResponse(deck.getId(), deck.getName(), deck.getFormat(), deck.getCreatedAt(),deck.getUpdatedAt());
+        return new DeckResponse(deck.getId(), deck.getName(), deck.getFormat(), deck.getCreatedAt(), deck.getUpdatedAt());
     }
 
     @Override
@@ -254,16 +247,16 @@ public class DeckServiceImpl implements DeckService {
     }
 
     @Override
-    public DeleteCardResponse deleteCardFromDeck(Long id, Long slotId){
+    public DeleteCardResponse deleteCardFromDeck(Long id, Long slotId) {
         Deck deck = getEntityByDeckId(id);
         Iterator<DeckSlot> iterator = deck.getSlots().iterator();
         DeckSlot commander = deck.getCommander();
         boolean found = false;
         String name = "";
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             DeckSlot slot = iterator.next();
-            if(slot.getId().equals(slotId)){
-                if(slot.equals(commander)) {
+            if (slot.getId().equals(slotId)) {
+                if (slot.equals(commander)) {
                     deck.setCommander(null);
                 }
                 slot.setDeck(null);
@@ -282,39 +275,39 @@ public class DeckServiceImpl implements DeckService {
         }
         deck.setUpdatedAt();
         List<SlotResponse> remainingCards = getCards(id);
-        return new DeleteCardResponse(id,slotId,name,remainingCards);
+        return new DeleteCardResponse(id, slotId, name, remainingCards);
     }
 
-    private boolean isBasicLand(DeckSlot slot){
+    private boolean isBasicLand(DeckSlot slot) {
         return BASIC_LANDS.contains(slot.getCardName().trim().toLowerCase());
     }
 
-    private void validateCardQuantity(Deck deck,DeckSlot slot,int qty){
-        if(qty <= 0){
+    private void validateCardQuantity(Deck deck, DeckSlot slot, int qty) {
+        if (qty <= 0) {
             throw new BadRequestException("Quantity should be above 0 but is : " + qty);
         }
-        if(deck.getFormat().equals(Format.COMMANDER) && qty > 1){
-            if(Objects.equals(deck.getCommander(),slot)) {
+        if (deck.getFormat().equals(Format.COMMANDER) && qty > 1) {
+            if (Objects.equals(deck.getCommander(), slot)) {
                 throw new IllegalArgumentException("Commander can only be a single card in the deck for : " + slot.getCardName());
             }
-            if(!isBasicLand(slot)){
-                    throw new IllegalArgumentException("Commander decks can only contains single version of each non basic lands for : " + slot.getCardName());
+            if (!isBasicLand(slot)) {
+                throw new IllegalArgumentException("Commander decks can only contains single version of each non basic lands for : " + slot.getCardName());
             }
         }
     }
 
     @Override
-    public SlotResponse updateCardFromDeck(Long id, Long slotId, UpdateCardRequest request){
+    public SlotResponse updateCardFromDeck(Long id, Long slotId, UpdateCardRequest request) {
         Deck deck = getEntityByDeckId(id);
         List<DeckSlot> deckSlots = deck.getSlots();
         boolean found = false;
         String name = "";
-        for(DeckSlot slot : deckSlots) {
-            if(slot.getId().equals(slotId)) {
+        for (DeckSlot slot : deckSlots) {
+            if (slot.getId().equals(slotId)) {
                 found = true;
                 name = slot.getCardName();
                 validateCardQuantity(deck, slot, request.getQty());
-                if(slot.getQty() != request.getQty()) {
+                if (slot.getQty() != request.getQty()) {
                     slot.setQty(request.getQty());
                     deck.setUpdatedAt();
                 }
@@ -328,18 +321,18 @@ public class DeckServiceImpl implements DeckService {
                             + " and deckslot id: " + slotId
             );
         }
-        return new SlotResponse(slotId,name, request.getQty());
+        return new SlotResponse(slotId, name, request.getQty());
     }
 
     @Override
-    public CommanderResponse unsetCommander(Long deckId){
+    public CommanderResponse unsetCommander(Long deckId) {
         Deck deck = getEntityByDeckId(deckId);
         String commander = null;
-        if(deck.getCommander() != null) {
+        if (deck.getCommander() != null) {
             commander = deck.getCommander().getCardName();
             deck.setCommander(null);
         }
-        return new CommanderResponse(deckId,commander,false);
+        return new CommanderResponse(deckId, commander, false);
     }
 
     @Override
@@ -347,11 +340,11 @@ public class DeckServiceImpl implements DeckService {
         Deck deck = getEntityByDeckId(deckId);
         String name = request.getName();
         Format format = request.getFormat();
-        if(name != null && !name.isBlank() && !deck.getName().equals(name)){
+        if (name != null && !name.isBlank() && !deck.getName().equals(name)) {
             deck.setName(name);
         }
-        if(format != null && !deck.getFormat().equals(format)) {
-            if(deck.getFormat().equals(Format.COMMANDER) && !format.equals(Format.COMMANDER)) {
+        if (format != null && !deck.getFormat().equals(format)) {
+            if (deck.getFormat().equals(Format.COMMANDER) && !format.equals(Format.COMMANDER)) {
                 unsetCommander(deckId);
             }
             deck.setFormat(format);

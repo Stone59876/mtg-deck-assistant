@@ -21,7 +21,7 @@ public class ImportResultResponse {
         this.duplicateLines = duplicateLines;
     }
 
-    public ImportResultResponse(Long deckId,int ignoredLines,int invalidLines) {
+    public ImportResultResponse(Long deckId, int ignoredLines, int invalidLines) {
         this.deckId = deckId;
         this.ignoredLines = ignoredLines;
         this.invalidLines = invalidLines;
@@ -43,7 +43,9 @@ public class ImportResultResponse {
         this.addedSlots = addedSlots;
     }
 
-    public void incrementAddedSlots() { addedSlots++;}
+    public void incrementAddedSlots() {
+        addedSlots++;
+    }
 
     public int getUpdatedSlots() {
         return updatedSlots;
@@ -53,7 +55,9 @@ public class ImportResultResponse {
         this.updatedSlots = updatedSlots;
     }
 
-    public void incrementUpdatedSlots() { updatedSlots++;}
+    public void incrementUpdatedSlots() {
+        updatedSlots++;
+    }
 
     public int getIgnoredLines() {
         return ignoredLines;
@@ -63,7 +67,9 @@ public class ImportResultResponse {
         this.ignoredLines = ignoredLines;
     }
 
-    public void incrementIgnoredLine() { ignoredLines++;}
+    public void incrementIgnoredLine() {
+        ignoredLines++;
+    }
 
     public int getInvalidLine() {
         return invalidLines;
@@ -73,7 +79,11 @@ public class ImportResultResponse {
         this.invalidLines = invalidLine;
     }
 
-    public void incrementInvalidLine() { invalidLines++;}
+    public void incrementInvalidLine() {
+        invalidLines++;
+    }
 
-    public void incrementDuplicateLines() {duplicateLines++;}
+    public void incrementDuplicateLines() {
+        duplicateLines++;
+    }
 }

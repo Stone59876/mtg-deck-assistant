@@ -2,16 +2,16 @@ package com.clementcogo.mtgdeckassistant.integration.gemini;
 
 import com.clementcogo.mtgdeckassistant.exception.GeminiException;
 import com.clementcogo.mtgdeckassistant.integration.gemini.model.ScryfallQuerySuggestions;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Client d’intégration Gemini (appel API “bas niveau”).
- *
+ * <p>
  * Rôle :
  * - Construire le prompt (instructions + contexte du commandant).
  * - Appeler le modèle Gemini via la lib google-genai.
@@ -55,21 +55,22 @@ public class GeminiClient {
     // The client gets the API key from the environment variable `GEMINI_API_KEY`.
     private final Client client;
 
-    public GeminiClient(ObjectMapper objectMapper,@Value("${gemini.model}") String model,@Value("${gemini.apiKey}") String apiKey) {
+    public GeminiClient(ObjectMapper objectMapper, @Value("${gemini.model}") String model, @Value("${gemini.apiKey}") String apiKey) {
         this.objectMapper = objectMapper;
         this.client = Client.builder().apiKey(apiKey).build();
         this.model = model;
     }
 
-    public ScryfallQuerySuggestions getSuggestions(String commander,String typeLine,String cmc,String colorIdentity,String oracle,String promptDetails) {
+    //tester le @Retry()
+    public ScryfallQuerySuggestions getSuggestions(String commander, String typeLine, String cmc, String colorIdentity, String oracle, String promptDetails) {
 
         if (promptDetails != null) {
-            promptDetails = promptDetails.trim().replace("%","");
+            promptDetails = promptDetails.trim().replace("%", "");
         } else {
             promptDetails = "Aucune préférence";
         }
 
-        String prompt = String.format(promptTemplate,promptDetails,commander,oracle,typeLine,cmc,colorIdentity);
+        String prompt = String.format(promptTemplate, promptDetails, commander, oracle, typeLine, cmc, colorIdentity);
 
         //TODO ajouter un systeme de retry si erreur et catch exception 503
 
@@ -79,25 +80,25 @@ public class GeminiClient {
                         prompt,
                         null);
 
-       // System.out.println("Réponse brute :" + response.text());
+        // System.out.println("Réponse brute :" + response.text());
 
         String cleanResponse = response.text();
 
-        if(cleanResponse != null ) {
+        if (cleanResponse != null) {
             cleanResponse = cleanResponse.trim();
 
-            if(cleanResponse.isBlank()) {
+            if (cleanResponse.isBlank()) {
                 throw new GeminiException("Gemini returned an empty response");
             }
 
             // Retirer les fences
-            if(cleanResponse.startsWith("```")) {
+            if (cleanResponse.startsWith("```")) {
                 int firstLine = cleanResponse.indexOf("\n");
-                if (firstLine != -1){
-                    cleanResponse = cleanResponse.substring(firstLine +1);
+                if (firstLine != -1) {
+                    cleanResponse = cleanResponse.substring(firstLine + 1);
                 }
                 int lastFence = cleanResponse.lastIndexOf("```");
-                if (lastFence != -1){
+                if (lastFence != -1) {
                     cleanResponse = cleanResponse.substring(0, lastFence);
                 }
             }
@@ -107,19 +108,18 @@ public class GeminiClient {
             int end = cleanResponse.lastIndexOf("}");
             if (start != -1 && end != -1 && end > start) {
                 cleanResponse = cleanResponse.substring(start, end + 1).trim();
-            }
-            else {
+            } else {
                 throw new GeminiException("Gemini response does not contain a JSON object");
             }
-        }else {
+        } else {
             throw new GeminiException("Gemini returned an empty response");
         }
 
         ScryfallQuerySuggestions result;
 
         try {
-            result = objectMapper.readValue(cleanResponse,ScryfallQuerySuggestions.class); //response.text();
-        } catch (JsonProcessingException e) {
+            result = objectMapper.readValue(cleanResponse, ScryfallQuerySuggestions.class); //response.text();
+        } catch (JacksonException e) {
             throw new GeminiException("Gemini returned invalid JSON :" + e.getMessage());
         }
         return result;

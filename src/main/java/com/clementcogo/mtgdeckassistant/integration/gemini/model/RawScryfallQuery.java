@@ -2,12 +2,12 @@ package com.clementcogo.mtgdeckassistant.integration.gemini.model;
 
 /**
  * Modèle “brut” représentant UNE requête Scryfall suggérée par Gemini.
- *
+ * <p>
  * Important :
  * - Cette classe vit côté integration.gemini.model car elle reflète le JSON attendu de Gemini.
  * - Elle ne contient pas la liste de cartes (cards) : Gemini ne doit renvoyer que le plan de recherche,
- *   l’enrichissement se fait ensuite via Scryfall.
- *
+ * l’enrichissement se fait ensuite via Scryfall.
+ * <p>
  * Champs :
  * - title   : titre lisible
  * - reason  : explication
@@ -18,52 +18,52 @@ package com.clementcogo.mtgdeckassistant.integration.gemini.model;
 public class RawScryfallQuery {
 
 
-        String title;
-        String reason;
-        String rawQuery;
-        String order;
+    String title;
+    String reason;
+    String rawQuery;
+    String order;
 
-        public RawScryfallQuery(String title, String reason, String rawQuery, String order) {
-            this.title = title;
-            this.reason = reason;
-            this.rawQuery = rawQuery;
-            this.order = order;
-        }
+    public RawScryfallQuery(String title, String reason, String rawQuery, String order) {
+        this.title = title;
+        this.reason = reason;
+        this.rawQuery = rawQuery;
+        this.order = order;
+    }
 
-        public RawScryfallQuery() {
-        }
+    public RawScryfallQuery() {
+    }
 
-        public String getTitle() {
-            return title;
-        }
+    public String getTitle() {
+        return title;
+    }
 
-        public void setTitle(String title) {
-            this.title = title;
-        }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-        public String getReason() {
-            return reason;
-        }
+    public String getReason() {
+        return reason;
+    }
 
-        public void setReason(String reason) {
-            this.reason = reason;
-        }
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
 
-        public String getRawQuery() {
-            return rawQuery;
-        }
+    public String getRawQuery() {
+        return rawQuery;
+    }
 
-        public void setRawQuery(String rawQuery) {
-            this.rawQuery = rawQuery;
-        }
+    public void setRawQuery(String rawQuery) {
+        this.rawQuery = rawQuery;
+    }
 
-        public String getOrder() {
-            return order;
-        }
+    public String getOrder() {
+        return order;
+    }
 
-        public void setOrder(String order) {
-            this.order = order;
-        }
+    public void setOrder(String order) {
+        this.order = order;
+    }
 
     @Override
     public String toString() {

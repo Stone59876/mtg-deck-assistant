@@ -4,10 +4,10 @@ import java.util.List;
 
 /**
  * Wrapper du JSON renvoyé par Gemini.
- *
+ * <p>
  * Gemini doit répondre sous la forme :
  * {
- *   "queries": [ { ... }, { ... }, ... ]
+ * "queries": [ { ... }, { ... }, ... ]
  * }
  */
 

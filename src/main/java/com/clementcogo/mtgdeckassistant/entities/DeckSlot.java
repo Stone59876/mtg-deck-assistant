@@ -36,13 +36,32 @@ public class DeckSlot {
         this.qty = qty;
     }
 
-    public Long getId() { return id; }
-    public Deck getDeck() { return deck; }
-    public String getCardName() { return cardName; }
-    public int getQty() { return qty; }
+    public Long getId() {
+        return id;
+    }
 
-    public void setDeck(Deck deck) { this.deck = deck; } // package-private ou public si besoin
-    public void setCardName(String cardName) { this.cardName = cardName; }
-    public void setQty(int qty) { this.qty = qty; }
+    public Deck getDeck() {
+        return deck;
+    }
+
+    public String getCardName() {
+        return cardName;
+    }
+
+    public int getQty() {
+        return qty;
+    }
+
+    public void setDeck(Deck deck) {
+        this.deck = deck;
+    } // package-private ou public si besoin
+
+    public void setCardName(String cardName) {
+        this.cardName = cardName;
+    }
+
+    public void setQty(int qty) {
+        this.qty = qty;
+    }
 
 }

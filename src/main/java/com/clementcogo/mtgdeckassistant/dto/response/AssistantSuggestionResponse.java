@@ -5,14 +5,14 @@ import java.util.List;
 
 /**
  * Représente UNE suggestion “lisible front” issue de l’assistant.
- *
+ * <p>
  * Contenu :
  * - title   : titre court de la catégorie (ex: "Cibles d'évocation").
  * - reason  : explication rapide de la synergie avec le commandant.
  * - rawQuery: requête Scryfall brute (compatible /cards/search?q=...).
  * - order   : tri Scryfall attendu (souvent "edhrec").
  * - cards   : liste de cartes “preview” résultant de l’exécution de rawQuery sur Scryfall.
- *
+ * <p>
  * Remarque :
  * - cards est initialisé à [] pour éviter des null checks côté front.
  * - Ce DTO est la version “enrichie” par rapport au plan brut renvoyé par Gemini.
@@ -65,10 +65,9 @@ public class AssistantSuggestionResponse {
     }
 
     public void setOrder(String order) {
-        if(order != null && !order.trim().isEmpty()) {
+        if (order != null && !order.trim().isEmpty()) {
             this.order = order.toLowerCase().trim();
-        }
-        else {
+        } else {
             this.order = "edhrec";
         }
     }
@@ -81,7 +80,7 @@ public class AssistantSuggestionResponse {
 
         if (cards != null) {
             this.cards = cards;
-        }else {
+        } else {
             this.cards = new ArrayList<>();
         }
 

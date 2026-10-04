@@ -4,13 +4,14 @@ import java.util.List;
 import java.util.Map;
 
 public class ScryfallCollectionRequest {
-    List<Map<String,String>> identifiers;
+    List<Map<String, String>> identifiers;
 
     public ScryfallCollectionRequest(List<Map<String, String>> identifiers) {
         this.identifiers = identifiers;
     }
 
-    public ScryfallCollectionRequest() {}
+    public ScryfallCollectionRequest() {
+    }
 
     public List<Map<String, String>> getIdentifiers() {
         return identifiers;

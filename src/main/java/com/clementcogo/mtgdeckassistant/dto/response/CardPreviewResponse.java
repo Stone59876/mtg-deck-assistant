@@ -15,7 +15,7 @@ public class CardPreviewResponse {
     String setCode;
     String scryfallId;
 
-    public CardPreviewResponse(String name,String manaCost, Double cmc, String typeLine, String oracleText, List<String> colors, List<String> colorIdentity, String setCode, String scryfallId) {
+    public CardPreviewResponse(String name, String manaCost, Double cmc, String typeLine, String oracleText, List<String> colors, List<String> colorIdentity, String setCode, String scryfallId) {
         this.name = name;
         this.manaCost = manaCost;
         this.cmc = cmc;
@@ -92,7 +92,7 @@ public class CardPreviewResponse {
     }
 
     public String getColorIdentityClean() {
-        if(this.getColorIdentity() != null) {
+        if (this.getColorIdentity() != null) {
             if (!this.getColorIdentity().isEmpty()) {
                 return String.join("", colorIdentity);
             }

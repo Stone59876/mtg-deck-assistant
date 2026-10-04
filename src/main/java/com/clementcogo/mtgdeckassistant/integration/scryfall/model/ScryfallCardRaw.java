@@ -16,7 +16,8 @@ public class ScryfallCardRaw {
     @JsonProperty("set")
     String setCode;
 
-    public ScryfallCardRaw() {}
+    public ScryfallCardRaw() {
+    }
 
     public String getId() {
         return id;
