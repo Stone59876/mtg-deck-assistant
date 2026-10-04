@@ -23,12 +23,17 @@ import java.util.*;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
 public class DeckServiceImpl implements DeckService {
 
     private final DeckRepository deckRepository;
 
     private final DeckSlotRepository deckSlotRepository;
+
+    public DeckServiceImpl(DeckRepository deckRepository,
+                           DeckSlotRepository deckSlotRepository) {
+        this.deckRepository = deckRepository;
+        this.deckSlotRepository = deckSlotRepository;
+    }
 
     private static final Set<String> BASIC_LANDS = Set.of("plains", "island", "swamp", "mountain", "forest", "wastes");
 
