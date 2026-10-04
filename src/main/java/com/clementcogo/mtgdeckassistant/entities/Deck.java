@@ -14,7 +14,7 @@ public class Deck {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -23,6 +23,9 @@ public class Deck {
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
+
+    @Column(nullable = false, updatable = true)
+    private Instant updatedAt;
 
     @OneToMany(
             mappedBy = "deck",
@@ -47,22 +50,26 @@ public class Deck {
 
     @PrePersist
     void prePersist() {
-        this.createdAt = Instant.now();
+        Instant now = Instant.now();
+        this.createdAt = now;
+        this.updatedAt = now;
     }
 
     // Helpers pour maintenir la relation bidirectionnelle correctement
     public void addSlot(DeckSlot slot) {
         slots.add(slot);
         slot.setDeck(this);
+        setUpdatedAt();
     }
 
     public void removeSlot(DeckSlot slot) {
         slots.remove(slot);
         slot.setDeck(null);
+        setUpdatedAt();
     }
 
     public void setCommander(DeckSlot commander) {
-        this.commander = commander;
+        this.commander = commander; setUpdatedAt();
     }
 
     // Getters (et setters si tu veux, mais limite-les)
@@ -72,8 +79,8 @@ public class Deck {
     public Instant getCreatedAt() { return createdAt; }
     public List<DeckSlot> getSlots() { return slots; }
 
-    public void setName(String name) { this.name = name; }
-    public void setFormat(Format format) { this.format = format; }
+    public void setName(String name) { this.name = name; setUpdatedAt(); }
+    public void setFormat(Format format) { this.format = format; setUpdatedAt(); }
 
     public DeckSlot getCommander() {
         return commander;
@@ -81,5 +88,13 @@ public class Deck {
 
     public List<String> getCardNames() {
         return this.slots.stream().map(DeckSlot::getCardName).toList();
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt() {
+        this.updatedAt = Instant.now();
     }
 }

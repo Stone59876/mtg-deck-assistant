@@ -94,4 +94,22 @@
             return deckService.updateCardFromDeck(id,slotId,request);
         }
 
+        @DeleteMapping("/{id}/commander")
+        @ResponseStatus(HttpStatus.OK)
+        public CommanderResponse unsetCommander(@PathVariable Long id){
+            return deckService.unsetCommander(id);
+        }
+
+        @PatchMapping("/{id}")
+        @ResponseStatus(HttpStatus.OK)
+        public DeckResponse updateDeck(@PathVariable Long id,@Valid @RequestBody UpdateDeckRequest request){
+            return deckService.updateDeck(id,request);
+        }
+
+        @DeleteMapping("/{id}")
+        @ResponseStatus(HttpStatus.NO_CONTENT)
+        public void deleteDeck(@PathVariable Long id){
+            deckService.deleteDeck(id);
+        }
+
     }

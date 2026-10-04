@@ -13,20 +13,23 @@ public class DeckResponse {
     Format format;
     Instant createdAt;
     String commander;
+    Instant lastUpdated;
 
-    public DeckResponse(Long id, String name, Format format, Instant createdAt) {
+    public DeckResponse(Long id, String name, Format format, Instant createdAt,Instant lastUpdated) {
         this.id = id;
         this.name = name;
         this.format = format;
         this.createdAt = createdAt;
+        this.lastUpdated = lastUpdated;
     }
 
-    public DeckResponse(Long id, String name, Format format, Instant createdAt,String commander) {
+    public DeckResponse(Long id, String name, Format format, Instant createdAt,String commander,Instant lastUpdated) {
         this.id = id;
         this.name = name;
         this.format = format;
         this.createdAt = createdAt;
         this.commander = commander;
+        this.lastUpdated = lastUpdated;
     }
 
     public Long getId() {
@@ -68,5 +71,11 @@ public class DeckResponse {
     public void setCommander(String commander) {
         this.commander = commander;
     }
+
+    public void setLastUpdated(Instant lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
+
+    public Instant getLastUpdated() { return lastUpdated;}
 
 }

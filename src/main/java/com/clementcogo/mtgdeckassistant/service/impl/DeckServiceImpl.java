@@ -3,6 +3,7 @@ package com.clementcogo.mtgdeckassistant.service.impl;
 import com.clementcogo.mtgdeckassistant.dto.request.AddCardRequest;
 import com.clementcogo.mtgdeckassistant.dto.request.CreateDeckRequest;
 import com.clementcogo.mtgdeckassistant.dto.request.UpdateCardRequest;
+import com.clementcogo.mtgdeckassistant.dto.request.UpdateDeckRequest;
 import com.clementcogo.mtgdeckassistant.dto.response.*;
 import com.clementcogo.mtgdeckassistant.entities.Deck;
 import com.clementcogo.mtgdeckassistant.entities.DeckSlot;
@@ -36,7 +37,7 @@ public class DeckServiceImpl implements DeckService {
     public DeckResponse create(CreateDeckRequest request) {
         Deck deck = new Deck(request.getName(), request.getFormat());
         Deck saved = deckRepository.save(deck);
-        return new DeckResponse(saved.getId(), saved.getName(), saved.getFormat(), saved.getCreatedAt());
+        return new DeckResponse(saved.getId(), saved.getName(), saved.getFormat(), saved.getCreatedAt(),saved.getUpdatedAt());
     }
 
     @Override
@@ -77,7 +78,7 @@ public class DeckServiceImpl implements DeckService {
                 response.incrementAddedSlots();
             }
 
-        }
+        };
         deckRepository.save(deck);
         return response;
     }
@@ -98,6 +99,7 @@ public class DeckServiceImpl implements DeckService {
                 int newQty = slot.getQty() + qty;
                 validateCardQuantity(deck,slot,newQty);
                 slot.setQty(newQty);
+                deck.setUpdatedAt();
             }
         } else {
             // nouvelle carte a ajouter
@@ -240,9 +242,9 @@ public class DeckServiceImpl implements DeckService {
 
     private DeckResponse toDeckResponse(Deck deck) {
         if(deck.getCommander() != null) {
-            return new DeckResponse(deck.getId(), deck.getName(), deck.getFormat(), deck.getCreatedAt(),deck.getCommander().getCardName());
+            return new DeckResponse(deck.getId(), deck.getName(), deck.getFormat(), deck.getCreatedAt(),deck.getCommander().getCardName(),deck.getUpdatedAt());
         }
-        return new DeckResponse(deck.getId(), deck.getName(), deck.getFormat(), deck.getCreatedAt());
+        return new DeckResponse(deck.getId(), deck.getName(), deck.getFormat(), deck.getCreatedAt(),deck.getUpdatedAt());
     }
 
     @Override
@@ -278,6 +280,7 @@ public class DeckServiceImpl implements DeckService {
                             + " and deckslot id: " + slotId
             );
         }
+        deck.setUpdatedAt();
         List<SlotResponse> remainingCards = getCards(id);
         return new DeleteCardResponse(id,slotId,name,remainingCards);
     }
@@ -311,7 +314,10 @@ public class DeckServiceImpl implements DeckService {
                 found = true;
                 name = slot.getCardName();
                 validateCardQuantity(deck, slot, request.getQty());
-                slot.setQty(request.getQty());
+                if(slot.getQty() != request.getQty()) {
+                    slot.setQty(request.getQty());
+                    deck.setUpdatedAt();
+                }
                 break;
             }
         }
@@ -323,6 +329,41 @@ public class DeckServiceImpl implements DeckService {
             );
         }
         return new SlotResponse(slotId,name, request.getQty());
+    }
+
+    @Override
+    public CommanderResponse unsetCommander(Long deckId){
+        Deck deck = getEntityByDeckId(deckId);
+        String commander = null;
+        if(deck.getCommander() != null) {
+            commander = deck.getCommander().getCardName();
+            deck.setCommander(null);
+        }
+        return new CommanderResponse(deckId,commander,false);
+    }
+
+    @Override
+    public DeckResponse updateDeck(Long deckId, UpdateDeckRequest request) {
+        Deck deck = getEntityByDeckId(deckId);
+        String name = request.getName();
+        Format format = request.getFormat();
+        if(name != null && !name.isBlank() && !deck.getName().equals(name)){
+            deck.setName(name);
+        }
+        if(format != null && !deck.getFormat().equals(format)) {
+            if(deck.getFormat().equals(Format.COMMANDER) && !format.equals(Format.COMMANDER)) {
+                unsetCommander(deckId);
+            }
+            deck.setFormat(format);
+        }
+        return toDeckResponse(deck);
+    }
+
+    @Override
+    public void deleteDeck(Long deckId) {
+        Deck deck = getEntityByDeckId(deckId);
+        deck.setCommander(null);
+        deckRepository.delete(deck);
     }
 
 }
