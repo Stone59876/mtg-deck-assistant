@@ -15,6 +15,7 @@ Le projet permet de créer et gérer des decks, importer des decklists, valider 
   - Spring Data JPA
 - **PostgreSQL**
 - **Hibernate / JPA**
+- **Flyway**
 - **Caffeine Cache**
 - **Scryfall API**
 - **Google Gemini API**
@@ -119,9 +120,7 @@ Le backend :
 
 ---
 
-## Lancer le projet
-
-### Prérequis
+## Prérequis
 
 - Java 25
 - PostgreSQL
@@ -141,31 +140,85 @@ POSTGRES_PASSWORD=...
 GEMINI_API_KEY=...
 ```
 
-Configuration actuelle de la datasource :
+Configuration principale :
 
 ```properties
+spring.application.name=mtg-deck-assistant
+
 spring.datasource.url=jdbc:postgresql://localhost:5432/mtg_deck_assistant
 spring.datasource.username=${POSTGRES_USER}
 spring.datasource.password=${POSTGRES_PASSWORD}
-```
 
-Le modèle Gemini utilisé est configuré dans `application.properties`.
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.open-in-view=false
+
+spring.flyway.enabled=true
+
+spring.cache.type=caffeine
+spring.cache.caffeine.spec=maximumSize=5000,expireAfterWrite=7d
+
+gemini.apiKey=${GEMINI_API_KEY}
+gemini.model=gemini-3.1-flash-lite
+```
 
 ---
 
 ## Base de données
 
-Le projet utilise **PostgreSQL** comme base persistante.
+Le projet utilise **PostgreSQL** comme base de données persistante.
 
-La structure de la base est actuellement gérée automatiquement par Hibernate avec :
+Les données restent disponibles entre les redémarrages de l’application.
+
+### Gestion du schéma avec Flyway
+
+La structure de la base n’est plus modifiée automatiquement par Hibernate.
+
+Hibernate utilise :
 
 ```properties
-spring.jpa.hibernate.ddl-auto=update
+spring.jpa.hibernate.ddl-auto=validate
 ```
 
-Les données persistent donc entre les redémarrages de l’application.
+Il vérifie uniquement que le schéma PostgreSQL correspond aux entités JPA.
 
-À terme, la gestion du schéma sera déplacée vers **Flyway**.
+Les évolutions du schéma sont gérées avec **Flyway**.
+
+Les migrations se trouvent dans :
+
+```text
+src/main/resources/db/migration
+```
+
+Convention de nommage :
+
+```text
+V1__init_schema.sql
+V2__add_something.sql
+V3__add_index.sql
+```
+
+Flyway exécute automatiquement les migrations manquantes dans l’ordre des versions au démarrage de l’application.
+
+La première migration du projet est :
+
+```text
+V1__init_schema.sql
+```
+
+Elle contient la création du schéma initial avec les tables :
+
+- `decks`
+- `deck_slots`
+
+Flyway conserve l’historique des migrations appliquées dans la table :
+
+```text
+flyway_schema_history
+```
+
+La base locale existante a été baselinée en version `1`, afin de rattacher le schéma déjà existant à l’historique Flyway.
+
+À partir de maintenant, toute évolution du schéma doit être ajoutée dans une nouvelle migration Flyway plutôt que dans une migration déjà appliquée.
 
 ---
 
@@ -189,6 +242,14 @@ L’API démarre par défaut sur :
 http://localhost:8080
 ```
 
+Au démarrage :
+
+1. Spring Boot se connecte à PostgreSQL
+2. Flyway valide l’historique des migrations
+3. Flyway applique les nouvelles migrations si nécessaire
+4. Hibernate valide le schéma
+5. L’application démarre
+
 ---
 
 # API
@@ -199,8 +260,6 @@ Base URL locale :
 http://localhost:8080
 ```
 
----
-
 ## Decks
 
 ### Créer un deck
@@ -208,8 +267,6 @@ http://localhost:8080
 ```http
 POST /decks
 ```
-
-Exemple :
 
 ```json
 {
@@ -230,8 +287,6 @@ GET /decks/{id}
 PATCH /decks/{id}
 ```
 
-Exemple :
-
 ```json
 {
   "name": "Ezio Updated",
@@ -239,19 +294,13 @@ Exemple :
 }
 ```
 
-Les champs sont optionnels.
-
 ### Supprimer un deck
 
 ```http
 DELETE /decks/{id}
 ```
 
-Retour :
-
-```text
-204 No Content
-```
+Retour : `204 No Content`
 
 ---
 
@@ -262,8 +311,6 @@ Retour :
 ```http
 POST /decks/{id}/cards
 ```
-
-Exemple :
 
 ```json
 {
@@ -284,8 +331,6 @@ GET /decks/{id}/cards
 PATCH /decks/{id}/cards/{slotId}
 ```
 
-Exemple :
-
 ```json
 {
   "qty": 2
@@ -293,8 +338,6 @@ Exemple :
 ```
 
 La quantité doit être supérieure ou égale à `1`.
-
-Pour retirer complètement une carte du deck, utiliser l’endpoint `DELETE`.
 
 ### Supprimer une carte
 
@@ -312,15 +355,6 @@ DELETE /decks/{id}/cards/{slotId}
 POST /decks/{id}/import
 ```
 
-Exemple :
-
-```json
-{
-  "decklist": "1 Sol Ring\n2 Island\n1 Command Tower",
-  "mergeDuplicates": true
-}
-```
-
 ### Import plain text
 
 ```http
@@ -333,7 +367,7 @@ Header :
 Content-Type: text/plain
 ```
 
-Body :
+Exemple :
 
 ```text
 1 Sol Ring
@@ -351,20 +385,6 @@ Body :
 PUT /decks/{id}/commander
 ```
 
-Exemple :
-
-```json
-{
-  "cardName": "The Ur-Dragon"
-}
-```
-
-Le commandant doit :
-
-- être présent dans le deck
-- avoir une quantité égale à `1`
-- être défini sur un deck au format `COMMANDER`
-
 ### Récupérer le commandant
 
 ```http
@@ -381,57 +401,25 @@ DELETE /decks/{id}/commander
 
 ## Validation
 
-### Valider un deck
-
 ```http
 GET /decks/{id}/validate
 ```
-
-La réponse contient notamment :
-
-- le format
-- le nombre total de cartes
-- le statut de validation
-- les problèmes détectés
-- les cartes dupliquées concernées
 
 ---
 
 ## Statistiques
 
-### Récupérer les statistiques d’un deck
-
 ```http
 GET /decks/{id}/stats
 ```
-
-La réponse contient notamment :
-
-- total de cartes
-- CMC moyen
-- répartition par type
-- mana curve
-- cartes non trouvées sur Scryfall
 
 ---
 
 ## Suggestions
 
-### Générer des suggestions
-
 ```http
 POST /decks/{id}/suggestions
 ```
-
-Cet endpoint utilise :
-
-- le commandant du deck
-- Google Gemini
-- Scryfall
-
-pour générer plusieurs catégories de suggestions de cartes.
-
-Les cartes déjà présentes dans le deck sont filtrées avant la réponse.
 
 ---
 
@@ -464,16 +452,6 @@ page
 POST /scryfall/collection
 ```
 
-Exemple :
-
-```json
-[
-  "Sol Ring",
-  "Command Tower",
-  "Arcane Signet"
-]
-```
-
 ---
 
 # Gestion des erreurs
@@ -483,24 +461,15 @@ Le backend utilise un `@RestControllerAdvice` pour centraliser certaines erreurs
 Principaux statuts :
 
 - **400 Bad Request**
-  - validation invalide
-  - argument métier invalide
 - **404 Not Found**
-  - deck ou ressource introuvable
 - **409 Conflict**
-  - conflit métier, par exemple doublon non autorisé
 - **429 Too Many Requests**
-  - rate limit
 - **502 Bad Gateway**
-  - erreur lors d’un appel Gemini
 - **500 Internal Server Error**
-  - erreur serveur inattendue
 
 ---
 
 # Architecture
-
-Organisation générale :
 
 ```text
 Controller
@@ -519,9 +488,9 @@ Les entités JPA ne sont pas directement exposées dans les réponses API : les 
 # Roadmap
 
 - Docker Compose
-- Flyway pour les migrations SQL
 - Frontend
 - Authentification / utilisateurs
 - Amélioration des statistiques
 - Amélioration des suggestions Gemini
 - Tests automatisés plus complets
+- Testcontainers avec PostgreSQL pour les tests d’intégration
